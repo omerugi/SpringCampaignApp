@@ -1,0 +1,5 @@
+DROP TABLE Product_Campaign IF EXISTS;
+DROP TABLE Campaign IF EXISTS;
+DROP TABLE Product IF EXISTS;
+
+
