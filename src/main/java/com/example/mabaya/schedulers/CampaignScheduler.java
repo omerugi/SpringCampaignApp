@@ -16,7 +16,7 @@ public class CampaignScheduler {
     @Autowired
     CampaignRepo campaignRepo;
 
-    @Scheduled(cron = "${app.scheduler.time.test}")
+    @Scheduled(cron = "${app.scheduler.time}")
     @Transactional
     public void deactivateOldCampaigns() {
         LocalDate tenDaysAgo = LocalDate.now().minusDays(10);

@@ -2,9 +2,13 @@ package com.example.mabaya.repositories;
 
 import com.example.mabaya.MabayaApplication;
 import com.example.mabaya.entities.Campaign;
+import com.example.mabaya.entities.Category;
+import com.example.mabaya.entities.Product;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = MabayaApplication.class)
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@SqlGroup({@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:schema.sql", "classpath:data.sql"}),
+@SqlGroup({@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:schema.sql","classpath:data.sql"}),
         @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:drop.sql")})
 class CampaignRepoTest {
 
@@ -34,8 +38,12 @@ class CampaignRepoTest {
     @Autowired
     ProductRepo productRepo;
 
+    @Autowired
+    CategoryRepo categoryRepo;
+
     @PersistenceContext
     EntityManager entityManager;
+
 
     private void clearAndFlush(){
         entityManager.clear();
@@ -51,7 +59,6 @@ class CampaignRepoTest {
         return campaign;
     }
 
-    // TODO: Split the tests
     @Test
     @Transactional
     void TestDeactivateOldCampaigns() {
@@ -87,10 +94,8 @@ class CampaignRepoTest {
     void TestSaveCampaign() {
         Campaign campaignToSave = getNewCampaign("test");
         campRepo.save(campaignToSave);
-
         clearAndFlush();
         Campaign foundCampaign = entityManager.find(Campaign.class, campaignToSave.getId());
-
         assertEquals(campaignToSave.getId(), foundCampaign.getId());
     }
 
@@ -98,11 +103,8 @@ class CampaignRepoTest {
     void testFindCampaignById() {
         Long idToFind = 11L;
         Optional<Campaign> campaignFound = campRepo.findById(idToFind);
-
         assertTrue(campaignFound.isPresent());
-        assertEquals(11L, campaignFound.get().getId());
+        assertEquals(idToFind, campaignFound.get().getId());
     }
-
-
 
 }

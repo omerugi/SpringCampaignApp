@@ -1,13 +1,10 @@
 package com.example.mabaya.entities;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,10 +13,6 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @Table(name = "campaign")
-@NamedEntityGraph(
-        name = "campaign-products",
-        attributeNodes = @NamedAttributeNode("products")
-)
 public class Campaign {
 
     @Id
@@ -28,7 +21,7 @@ public class Campaign {
     private Long id;
 
     @Column(name = "name")
-    @NotEmpty(message = "Name cannot be empty")
+    @Size(min = 2, max = 25, message = "Name should be between 2-25 chars")
     private String name;
 
     @Column(name = "start_date", nullable = false)

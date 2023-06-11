@@ -1,8 +1,7 @@
 package com.example.mabaya.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import jakarta.persistence.*;
@@ -23,14 +22,8 @@ public class Product {
     private String productSerialNumber;
 
     @Column(name = "title", nullable = false, unique = true)
-    @NotEmpty(message = "Title cannot be empty")
+    @Size(min = 2, max = 25, message = "Title should be between 2-25 chars")
     private String title;
-
-
-    // TODO: Maybe could be one to many
-    @Column(name = "category", nullable = false)
-    @NotEmpty(message = "Category cannot be empty")
-    private String category;
 
     @Column(name = "price", nullable = false)
     @DecimalMin(value = "0.0", inclusive = true)
@@ -42,5 +35,10 @@ public class Product {
     @ManyToMany(mappedBy = "products", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Campaign> campaigns = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    @NotNull(message = "Must have a category")
+    private Category category;
 
 }

@@ -10,17 +10,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
 
 
-@SpringBootTest(
-        classes = MabayaApplication.class,
-        properties = {
-                "app.scheduler.time.test=0/01 * * * * ?"
-        })
+@SpringBootTest
 class CampaignSchedulerTest {
 
     @Autowired

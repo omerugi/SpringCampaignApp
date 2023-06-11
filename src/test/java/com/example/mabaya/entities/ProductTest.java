@@ -18,14 +18,20 @@ class ProductTest {
     @Autowired
     private Validator validator;
 
+    private Category getCategory(){
+        Category category = new Category();
+        category.setName("test");
+        return category;
+    }
+
     @Test
     void testProductSerialNumberEmptyConstraintViolation() {
         Product product = new Product();
         product.setProductSerialNumber("");
         product.setTitle("Test Product");
-        product.setCategory("Test Category");
         product.setPrice(50.0);
         product.setActive(true);
+        product.setCategory(getCategory());
 
         Set<ConstraintViolation<Product>> violations = validator.validate(product);
 
@@ -38,29 +44,14 @@ class ProductTest {
         Product product = new Product();
         product.setProductSerialNumber("123456");
         product.setTitle("");
-        product.setCategory("Test Category");
         product.setPrice(50.0);
         product.setActive(true);
+        product.setCategory(getCategory());
 
         Set<ConstraintViolation<Product>> violations = validator.validate(product);
 
         assertFalse(violations.isEmpty());
-        assertEquals("Title cannot be empty", violations.iterator().next().getMessage());
-    }
-
-    @Test
-    void testProductCategoryEmptyConstraintViolation() {
-        Product product = new Product();
-        product.setProductSerialNumber("123456");
-        product.setTitle("Test Product");
-        product.setCategory("");
-        product.setPrice(50.0);
-        product.setActive(true);
-
-        Set<ConstraintViolation<Product>> violations = validator.validate(product);
-
-        assertFalse(violations.isEmpty());
-        assertEquals("Category cannot be empty", violations.iterator().next().getMessage());
+        assertEquals("Title should be between 2-25 chars", violations.iterator().next().getMessage());
     }
 
     @Test
@@ -68,13 +59,27 @@ class ProductTest {
         Product product = new Product();
         product.setProductSerialNumber("123456");
         product.setTitle("Test Product");
-        product.setCategory("Test Category");
         product.setPrice(-50.0);
         product.setActive(true);
+        product.setCategory(getCategory());
 
         Set<ConstraintViolation<Product>> violations = validator.validate(product);
 
         assertFalse(violations.isEmpty());
         assertEquals("must be greater than or equal to 0.0", violations.iterator().next().getMessage());
+    }
+
+    @Test
+    void testProductPriceNoCategoryViolation() {
+        Product product = new Product();
+        product.setProductSerialNumber("123456");
+        product.setTitle("Test Product");
+        product.setPrice(50.0);
+        product.setActive(true);
+
+        Set<ConstraintViolation<Product>> violations = validator.validate(product);
+
+        assertFalse(violations.isEmpty());
+        assertEquals("Must have a category", violations.iterator().next().getMessage());
     }
 }

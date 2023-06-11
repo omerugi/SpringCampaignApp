@@ -23,7 +23,7 @@ public class CampaignDTO {
     @NotNull
     private LocalDate startDate;
 
-    @DecimalMin(value = "0.0", inclusive = true)
+    @DecimalMin(value = "0.0", inclusive = true, message = "Bid cannot be negative")
     private double bid;
 
     private boolean active = true;

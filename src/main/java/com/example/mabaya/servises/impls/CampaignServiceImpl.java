@@ -8,27 +8,25 @@ import com.example.mabaya.servises.interfaces.CampaignService;
 import com.example.mabaya.servises.interfaces.ProductService;
 import com.example.mabaya.utils.CampaignUtils;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
 public class CampaignServiceImpl implements CampaignService {
 
     @Autowired
-    CampaignRepo campaignRepo;
+    private CampaignRepo campaignRepo;
 
     @Autowired
-    ProductService productService;
+    private ProductService productService;
+
 
     @Transactional
     @Override
-    public Campaign createUpdateCampaign(CampaignDTO campaignDTO) {
+    public Campaign upsert(CampaignDTO campaignDTO) {
         Campaign campaign = createCampaignFromDTO(campaignDTO);
         return campaignRepo.save(campaign);
     }
@@ -37,9 +35,19 @@ public class CampaignServiceImpl implements CampaignService {
         if (campaignDTO.getProductSerialNumbers().isEmpty()) {
             throw new IllegalArgumentException("Product list cannot be empty");
         }
-        Set<Product> products = productService.getProductFromSerialNumbers(campaignDTO.getProductSerialNumbers());
+        Set<Product> products = productService.getProductsBySerialNumbers(campaignDTO.getProductSerialNumbers());
         return CampaignUtils.getCampaignFromCampaignDTO(campaignDTO, products);
     }
 
+    @Override
+    public Optional<Campaign> getById(Long id) {
+        return campaignRepo.findById(id);
+    }
 
+    @Override
+    public void deleteById(Long id) {
+        Optional<Campaign> opCampaignFromDB = getById(id);
+        Campaign campaign = opCampaignFromDB.orElseThrow(() -> new IllegalArgumentException("ID was not gound in the DB"));
+        campaignRepo.delete(campaign);
+    }
 }

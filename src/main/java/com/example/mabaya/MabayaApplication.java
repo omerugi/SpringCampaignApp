@@ -7,6 +7,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
+// TODO: Exception handler
+// TODO: Use logger
+// TODO: Add documentation
+// TODO: maybe use flyway to handle migration
+
 public class MabayaApplication {
 
     public static void main(String[] args) {

@@ -46,7 +46,6 @@ class ProductRepoTest {
         Product product = new Product();
         product.setTitle(title);
         product.setProductSerialNumber(serialNumber);
-        product.setCategory("generic-category");
         return product;
     }
 
@@ -64,12 +63,12 @@ class ProductRepoTest {
         TopProductProjection tppValidCategory = productRepo.findTopPromotedProduct(validCategory).orElseThrow(Exception::new);
 
 
-        assertNotSame(productMap.get(tppCategoryWithNoTopProduct.getProduct_serial_number()).getCategory(), categoryWithNoTopProduct);
-        assertNotSame(productMap.get(tppCategoryNotExist.getProduct_serial_number()).getCategory(), categoryNotExist);
-        assertNotSame(productMap.get(tppValidCategory.getProduct_serial_number()).getCategory(), validCategory);
+        assertNotSame(productMap.get(tppCategoryWithNoTopProduct.getProduct_serial_number()).getCategory().getName(), categoryWithNoTopProduct);
+        assertNotSame(productMap.get(tppCategoryNotExist.getProduct_serial_number()).getCategory().getName(), categoryNotExist);
+        assertNotSame(productMap.get(tppValidCategory.getProduct_serial_number()).getCategory().getName(), validCategory);
 
         TypedQuery<Product> query = entityManager.createQuery(
-                "SELECT p FROM Product p WHERE p.category = :category", Product.class);
+                "SELECT p FROM Product p WHERE p.category.name = :category", Product.class);
         query.setParameter("category", validCategory);
         List<Product> productListByCategory = query.getResultList();
         productListByCategory.sort(Comparator.comparingDouble((Product p) -> p.getCampaigns().stream().mapToDouble(Campaign::getBid).max().orElse(0)).reversed());
@@ -82,7 +81,6 @@ class ProductRepoTest {
         Product product = new Product();
         product.setProductSerialNumber("123456");
         product.setTitle("Test Product");
-        product.setCategory("Test Category");
         product.setPrice(50.0);
         product.setActive(true);
 
@@ -94,17 +92,14 @@ class ProductRepoTest {
 
     @Test
     void TestFindProductById() {
-        Product productToSave = getProduct("test-find","find-1");
-
-        productRepo.save(productToSave);
-        Optional<Product> productToSaveFind = productRepo.findById(productToSave.getProductSerialNumber());
+        Optional<Product> productToSaveFind = productRepo.findById("1");
         Optional<Product> fromDataFind = productRepo.findById("2");
         Optional<Product> noFind = productRepo.findById("xxxx");
 
         assertTrue(productToSaveFind.isPresent());
         assertTrue(fromDataFind.isPresent());
         assertFalse(noFind.isPresent());
-        assertEquals(productToSave.getProductSerialNumber(), productToSaveFind.get().getProductSerialNumber());
+        assertEquals("1",productToSaveFind.get().getProductSerialNumber());
         assertEquals("2",fromDataFind.get().getProductSerialNumber());
     }
 

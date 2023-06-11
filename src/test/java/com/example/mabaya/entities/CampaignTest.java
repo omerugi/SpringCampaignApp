@@ -22,11 +22,9 @@ class CampaignTest {
         campaign.setName("");
         campaign.setStartDate(LocalDate.now());
         campaign.setBid(10.0);
-
         Set<ConstraintViolation<Campaign>> violations = validator.validate(campaign);
-
         assertFalse(violations.isEmpty());
-        assertEquals("Name cannot be empty", violations.iterator().next().getMessage());
+        assertEquals("Name should be between 2-25 chars", violations.iterator().next().getMessage());
     }
 
     @Test
@@ -47,9 +45,7 @@ class CampaignTest {
         Campaign campaign = new Campaign();
         campaign.setName("Test Campaign");
         campaign.setBid(10.0);
-
         Set<ConstraintViolation<Campaign>> violations = validator.validate(campaign);
-
         assertFalse(violations.isEmpty());
         assertEquals("Start date cannot be null", violations.iterator().next().getMessage());
     }

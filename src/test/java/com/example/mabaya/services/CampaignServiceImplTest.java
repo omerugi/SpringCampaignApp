@@ -5,6 +5,7 @@ import com.example.mabaya.dto.CampaignDTO;
 import com.example.mabaya.entities.Campaign;
 import com.example.mabaya.entities.Product;
 import com.example.mabaya.servises.impls.CampaignServiceImpl;
+import com.example.mabaya.servises.interfaces.CategoryService;
 import com.example.mabaya.servises.interfaces.ProductService;
 import com.example.mabaya.utils.CampaignUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -30,13 +31,14 @@ class CampaignServiceImplTest {
     ProductService productService;
     @Mock
     CampaignRepo campaignRepo;
+    @Mock
+    CategoryService categoryService;
     @InjectMocks
     CampaignServiceImpl campaignService;
 
 
     private Product getNewProduct(String title, String psc){
         Product product = new Product();
-        product.setCategory("test-cat");
         product.setProductSerialNumber(psc);
         product.setTitle(title);
         product.setPrice(10);
@@ -58,9 +60,9 @@ class CampaignServiceImplTest {
         savedCamp.setProducts(productOfSavedCamp);
         CampaignDTO campaignToSaveDTO = CampaignUtils.getCampaignDTOFromCampaign(savedCamp);
         when(campaignRepo.save(any())).thenReturn(savedCamp);
-        when(productService.getProductFromSerialNumbers(any())).thenReturn(productOfSavedCamp);
+        when(productService.getProductsBySerialNumbers(any())).thenReturn(productOfSavedCamp);
 
-        Campaign afterSaveCamp = campaignService.createUpdateCampaign(campaignToSaveDTO);
+        Campaign afterSaveCamp = campaignService.upsert(campaignToSaveDTO);
 
         assertSame(afterSaveCamp,savedCamp);
     }
@@ -70,7 +72,7 @@ class CampaignServiceImplTest {
         Campaign savedCamp = getNewCampaign("test-camp");
         CampaignDTO campaignToSaveDTO = CampaignUtils.getCampaignDTOFromCampaign(savedCamp);
         Exception exception = assertThrows(IllegalArgumentException.class,
-                ()->campaignService.createUpdateCampaign(campaignToSaveDTO));
+                ()->campaignService.upsert(campaignToSaveDTO));
         assertTrue(exception.getMessage().contains("Product list cannot be empty"));
     }
 

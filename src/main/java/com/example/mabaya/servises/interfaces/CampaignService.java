@@ -4,9 +4,14 @@ import com.example.mabaya.dto.CampaignDTO;
 import com.example.mabaya.entities.Campaign;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public interface CampaignService {
 
-    Campaign createUpdateCampaign(CampaignDTO campaign);
+    Campaign upsert(CampaignDTO campaign);
 
+    Optional<Campaign> getById(Long id);
+
+    void deleteById(Long id);
 }
