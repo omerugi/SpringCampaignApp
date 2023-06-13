@@ -2,15 +2,15 @@ package com.example.mabaya.repositories;
 
 import com.example.mabaya.dto.projections.TopProductProjection;
 import com.example.mabaya.entities.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface ProductRepo extends CrudRepository<Product, String> {
+public interface ProductRepo extends JpaRepository<Product, String> {
 
     @Query(value = "SELECT c.bid, p.*, cat.name as category \n" +
             "FROM Product p\n" +
@@ -22,4 +22,5 @@ public interface ProductRepo extends CrudRepository<Product, String> {
             "LIMIT 1;", nativeQuery = true)
     Optional<TopProductProjection> findTopPromotedProduct(String category);
 
+    Optional<Product> findByTitle(String title);
 }

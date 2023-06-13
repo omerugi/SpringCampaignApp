@@ -9,10 +9,13 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
@@ -31,21 +34,28 @@ import java.util.stream.StreamSupport;
         @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:drop.sql")})
 class ProductRepoTest {
 
-    @Autowired
     ProductRepo productRepo;
+    CategoryRepo categoryRepo;
+
+    @Autowired
+    public void setProductRepo(ProductRepo productRepo){
+        this.productRepo = productRepo;
+    }
+
+    @Autowired
+    public void setCategoryRepo(CategoryRepo categoryRepo){
+        this.categoryRepo = categoryRepo;
+    }
 
     @PersistenceContext
     EntityManager entityManager;
 
-    private void clearAndFlush(){
-        entityManager.clear();
-        entityManager.flush();
-    }
 
     public Product getProduct(String title, String serialNumber){
         Product product = new Product();
         product.setTitle(title);
         product.setProductSerialNumber(serialNumber);
+        product.setCategory(categoryRepo.findById(111L).get());
         return product;
     }
 
@@ -77,16 +87,10 @@ class ProductRepoTest {
 
 
     @Test
-    void TestSaveProduct() {
-        Product product = new Product();
-        product.setProductSerialNumber("123456");
-        product.setTitle("Test Product");
-        product.setPrice(50.0);
-        product.setActive(true);
-
-        productRepo.save(product);
+    void TestSaveProductSuccesses() {
+        Product product = getProduct("test","11test");
+        productRepo.saveAndFlush(product);
         Product foundProduct = entityManager.find(Product.class, product.getProductSerialNumber());
-
         assertEquals(product.getProductSerialNumber(), foundProduct.getProductSerialNumber());
     }
 
@@ -104,4 +108,87 @@ class ProductRepoTest {
     }
 
 
+    @Test
+    void testFindProductByTitleFound(){
+        Optional<Product> foundProduct = productRepo.findByTitle("p1");
+        assertTrue(foundProduct.isPresent());
+        assertEquals("p1",foundProduct.get().getTitle());
+    }
+
+    @Test
+    void testFindProductByTitleNotFound(){
+        Optional<Product> foundProduct = productRepo.findByTitle("Made up product title that is not in DB");
+        assertFalse(foundProduct.isPresent());
+    }
+
+    @Test
+    void TestSaveProductFailNullTitle() {
+        Product categoryNullName = getProduct(null,"s11");
+        assertThrows(DataIntegrityViolationException.class,() -> {
+            productRepo.saveAndFlush(categoryNullName);
+            entityManager.flush();
+        });
+    }
+
+    @Test
+    void TestSaveProductFailInvalidTitle() {
+        Product productShortTitle = getProduct("s","s11");
+        Product productLongTitle = getProduct("this is a really long product title to test","s-12");
+
+        ConstraintViolationException thrownShortTitle = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    productRepo.saveAndFlush(productShortTitle);
+                }
+        );
+        ConstraintViolationException thrownLongTitle = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    productRepo.saveAndFlush(productLongTitle);
+                }
+        );
+
+        assertTrue(thrownShortTitle.getMessage().contains("Title should be between 2-25 chars"));
+        assertTrue(thrownLongTitle.getMessage().contains("Title should be between 2-25 chars"));
+    }
+
+    @Test
+//    @org.springframework.transaction.annotation.Transactional(propagation =
+//            Propagation.NOT_SUPPORTED)
+    void TestSaveProductFailNegativePrice() {
+        Product productNegativePrice = getProduct("test","s11");
+        productNegativePrice.setPrice(-100.0);
+        ConstraintViolationException thrown = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    productRepo.saveAndFlush(productNegativePrice);
+                }
+        );
+        assertTrue(thrown.getMessage().contains("must be greater than or equal to 0"));
+    }
+
+    @Test
+    void TestSaveProductFailNullSerialNumber() {
+        Product productNullSerialNumber = getProduct("test",null);
+        assertThrows(JpaSystemException.class, () -> productRepo.saveAndFlush(productNullSerialNumber));
+    }
+
+    @Test
+    void TestSaveProductFailNullCategory() {
+        Product productNullCategory = new Product();
+        productNullCategory.setTitle("Valid Title");
+        productNullCategory.setProductSerialNumber("SN345");
+
+        ConstraintViolationException thrown = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    productRepo.saveAndFlush(productNullCategory);
+                }
+        );
+        assertTrue(thrown.getMessage().contains("Must have a category"));
+    }
+
 }
+
+
+

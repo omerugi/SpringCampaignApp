@@ -17,7 +17,7 @@ class CategoryTest {
     private Validator validator;
 
     @Test
-    void testNameIsEmptyConstraintViolation() {
+    void testNameConstraintViolation() {
         Category category = new Category();
         category.setName("");
         Set<ConstraintViolation<Category>> violations = validator.validate(category);

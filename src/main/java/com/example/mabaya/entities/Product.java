@@ -13,12 +13,13 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "product")
 public class Product {
 
     @Id
     @Column(name = "product_serial_number", nullable = false)
-    @NotEmpty(message = "Product Serial Number cannot be empty")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Product Serial Number should be at lease size 1 and contain letters and digits")
     private String productSerialNumber;
 
     @Column(name = "title", nullable = false, unique = true)

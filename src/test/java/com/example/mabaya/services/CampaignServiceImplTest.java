@@ -1,5 +1,7 @@
 package com.example.mabaya.services;
 
+import com.example.mabaya.consts.ValidationMsg;
+import com.example.mabaya.exeption.AppValidationException;
 import com.example.mabaya.repositories.CampaignRepo;
 import com.example.mabaya.dto.CampaignDTO;
 import com.example.mabaya.entities.Campaign;
@@ -71,9 +73,9 @@ class CampaignServiceImplTest {
     void TestCreateCampaignWithEmptyProductSet(){
         Campaign savedCamp = getNewCampaign("test-camp");
         CampaignDTO campaignToSaveDTO = CampaignUtils.getCampaignDTOFromCampaign(savedCamp);
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(AppValidationException.class,
                 ()->campaignService.upsert(campaignToSaveDTO));
-        assertTrue(exception.getMessage().contains("Product list cannot be empty"));
+        assertTrue(exception.getMessage().contains(ValidationMsg.emptyFiled("Product Serial Numbers")));
     }
 
 

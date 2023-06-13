@@ -1,8 +1,10 @@
 package com.example.mabaya.services;
 
+import com.example.mabaya.consts.ValidationMsg;
 import com.example.mabaya.dto.CategoryDTO;
 import com.example.mabaya.entities.Category;
 import com.example.mabaya.entities.Product;
+import com.example.mabaya.exeption.AppValidationException;
 import com.example.mabaya.repositories.CategoryRepo;
 import com.example.mabaya.servises.impls.CategoryServiceImpl;
 import com.example.mabaya.utils.CategoryUtils;
@@ -12,6 +14,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
@@ -77,14 +80,13 @@ class CategoryServiceImplTest {
     void testDeleteCategoryByIdException() {
         Long id = 1L;
         Category category = new Category();
-        category.setProducts(new HashSet<>(Collections.singletonList(new Product())));
+        Product product = new Product();
+        product.setProductSerialNumber("1111");
+        category.addProduct(product);
         when(categoryRepo.findById(id)).thenReturn(Optional.of(category));
 
-        Exception exception = assertThrows(RuntimeException.class, () -> categoryService.deleteById(id));
+        Exception exception = assertThrows(AppValidationException.class, () -> categoryService.deleteById(id));
 
-        String expectedMessage = "Cannot delete category with product attached to it";
-        String actualMessage = exception.getMessage();
-
-        assertTrue(actualMessage.contains(expectedMessage));
+        assertTrue(exception.getMessage().contains(ValidationMsg.cannotDeleteAttachedEntity(id, "111")));
     }
 }

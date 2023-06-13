@@ -23,12 +23,11 @@ public class CampaignController {
     private CampaignScheduler campaignScheduler;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Campaign> upsert(@RequestBody @Valid CampaignDTO campaignDTO){
         Campaign campaignFromDB = campaignService.upsert(campaignDTO);
         return new ResponseEntity<>(campaignFromDB, campaignFromDB.getId().equals(campaignDTO.getId())?
-                HttpStatus.CREATED:
-                HttpStatus.OK);
+                HttpStatus.OK:
+                HttpStatus.CREATED);
     }
 
     @PostMapping("/runscheduler")
@@ -40,13 +39,14 @@ public class CampaignController {
     @GetMapping("/{id}")
     public ResponseEntity<Campaign> getById(@PathVariable("id") Long id){
         Optional<Campaign> campaignFromDB = campaignService.getById(id);
-        return campaignFromDB.map(category -> new ResponseEntity<>(category, HttpStatus.FOUND))
+        return campaignFromDB.map(campaign -> new ResponseEntity<>(campaign, HttpStatus.FOUND))
                 .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteById(@PathVariable("id") Long id){
+
         campaignService.deleteById(id);
     }
 

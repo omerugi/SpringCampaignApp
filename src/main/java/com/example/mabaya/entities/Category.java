@@ -29,4 +29,7 @@ public class Category {
     @JsonIgnore
     private Set<Product> products = new HashSet<>();
 
+    public void addProduct(Product product){
+        products.add(product);
+    }
 }

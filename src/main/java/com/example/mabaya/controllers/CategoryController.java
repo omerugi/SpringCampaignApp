@@ -22,8 +22,8 @@ public class CategoryController {
     public ResponseEntity<Category> upsert(@RequestBody @Valid CategoryDTO categoryDTO){
         Category categoryFromDB = categoryService.upsert(categoryDTO);
         return new ResponseEntity<>(categoryFromDB, categoryFromDB.getId().equals(categoryDTO.getId())?
-                HttpStatus.CREATED:
-                HttpStatus.OK);
+                HttpStatus.OK:
+                HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")

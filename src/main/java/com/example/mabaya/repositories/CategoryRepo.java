@@ -2,6 +2,7 @@ package com.example.mabaya.repositories;
 
 import com.example.mabaya.entities.Category;
 import jakarta.validation.constraints.Size;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -13,7 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public interface CategoryRepo extends CrudRepository<Category,Long> {
+public interface CategoryRepo extends JpaRepository<Category,Long> {
 
     Optional<Category> findByName(String name);
 

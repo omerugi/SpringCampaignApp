@@ -2,17 +2,15 @@ package com.example.mabaya.repositories;
 
 import com.example.mabaya.MabayaApplication;
 import com.example.mabaya.entities.Campaign;
-import com.example.mabaya.entities.Category;
-import com.example.mabaya.entities.Product;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeAll;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
@@ -20,8 +18,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,23 +28,28 @@ import static org.junit.jupiter.api.Assertions.*;
         @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:drop.sql")})
 class CampaignRepoTest {
 
-    @Autowired
     CampaignRepo campRepo;
-
-    @Autowired
     ProductRepo productRepo;
+    CategoryRepo categoryRepo;
 
     @Autowired
-    CategoryRepo categoryRepo;
+    public void setCampRepo(CampaignRepo campRepo){
+        this.campRepo = campRepo;
+    }
+
+    @Autowired
+    public void setProductRepo(ProductRepo productRepo){
+        this.productRepo = productRepo;
+    }
+
+    @Autowired
+    public void setCategoryRepo(CategoryRepo categoryRepo){
+        this.categoryRepo = categoryRepo;
+    }
 
     @PersistenceContext
     EntityManager entityManager;
 
-
-    private void clearAndFlush(){
-        entityManager.clear();
-        entityManager.flush();
-    }
 
     private Campaign getNewCampaign(String name) {
         Campaign campaign = new Campaign();
@@ -60,43 +61,50 @@ class CampaignRepoTest {
     }
 
     @Test
-    @Transactional
-    void TestDeactivateOldCampaigns() {
+    void TestDeactivateOldCampaignsUpdates() {
         Campaign campWithPassEndDate1 = getNewCampaign("campWithPassEndDate1");
         campWithPassEndDate1.setStartDate(LocalDate.now().minusDays(15));
         Campaign campWithPassEndDate2 = getNewCampaign("campWithPassEndDate2");
         campWithPassEndDate2.setStartDate(LocalDate.now().minusDays(11));
+
+        entityManager.persist(campWithPassEndDate1);
+        entityManager.persist(campWithPassEndDate2);
+        entityManager.clear();
+        entityManager.flush();
+
+        campRepo.deactivateOldCampaigns(LocalDate.now().minusDays(10));
+        entityManager.clear();
+        entityManager.flush();
+
+        Campaign foundCamp1 = entityManager.find(Campaign.class, campWithPassEndDate1.getId());
+        Campaign foundCamp2 = entityManager.find(Campaign.class, campWithPassEndDate2.getId());
+
+        assertFalse(foundCamp1.isActive());
+        assertFalse(foundCamp2.isActive());
+    }
+
+    @Test
+    @Transactional
+    void TestDeactivateOldCampaignsNoUpdates() {
         Campaign campWithValidEndDate1 = getNewCampaign("campWithValidEndDate1");
         campWithValidEndDate1.setStartDate(LocalDate.now().minusDays(10));
         Campaign campWithValidEndDate2 = getNewCampaign("campWithValidEndDate2");
 
-        List<Long> savedCampIds = StreamSupport.stream(
-                        campRepo.saveAll(
-                                Arrays.asList(campWithPassEndDate1, campWithPassEndDate2, campWithValidEndDate1,campWithValidEndDate2)).spliterator()
-                        , false)
-                .map(Campaign::getId).toList();
-        clearAndFlush();
+        entityManager.persist(campWithValidEndDate1);
+        entityManager.persist(campWithValidEndDate2);
+        entityManager.clear();
+        entityManager.flush();
+
+
         campRepo.deactivateOldCampaigns(LocalDate.now().minusDays(10));
-        clearAndFlush();
+        entityManager.clear();
+        entityManager.flush();
 
-        Map<String, Boolean> afterUpdateCamps = StreamSupport.stream(
-                        campRepo.findAllById(savedCampIds).spliterator()
-                        , false)
-                .collect(Collectors.toMap(Campaign::getName,Campaign::isActive));
+        Campaign foundCamp1 = entityManager.find(Campaign.class, campWithValidEndDate1.getId());
+        Campaign foundCamp2 = entityManager.find(Campaign.class, campWithValidEndDate2.getId());
 
-        assertFalse(afterUpdateCamps.get("campWithPassEndDate1"));
-        assertFalse(afterUpdateCamps.get("campWithPassEndDate2"));
-        assertTrue(afterUpdateCamps.get("campWithValidEndDate1"));
-        assertTrue(afterUpdateCamps.get("campWithValidEndDate2"));
-    }
-
-    @Test
-    void TestSaveCampaign() {
-        Campaign campaignToSave = getNewCampaign("test");
-        campRepo.save(campaignToSave);
-        clearAndFlush();
-        Campaign foundCampaign = entityManager.find(Campaign.class, campaignToSave.getId());
-        assertEquals(campaignToSave.getId(), foundCampaign.getId());
+        assertTrue(foundCamp1.isActive());
+        assertTrue(foundCamp2.isActive());
     }
 
     @Test
@@ -105,6 +113,79 @@ class CampaignRepoTest {
         Optional<Campaign> campaignFound = campRepo.findById(idToFind);
         assertTrue(campaignFound.isPresent());
         assertEquals(idToFind, campaignFound.get().getId());
+    }
+
+    @Test
+    void TestSaveCampaignSuccesses() {
+        Campaign campaignToSave = getNewCampaign("test");
+        campRepo.saveAndFlush(campaignToSave);
+        
+        Campaign foundCampaign = entityManager.find(Campaign.class, campaignToSave.getId());
+        assertEquals(campaignToSave.getId(), foundCampaign.getId());
+    }
+
+    @Test
+    void TestSaveCampaignFailNullStartDate() {
+        Campaign campaignNullDate = getNewCampaign("nullDate");
+        campaignNullDate.setStartDate(null);
+
+        ConstraintViolationException thrown = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    campRepo.saveAndFlush(campaignNullDate);
+                    
+                }
+        );
+        assertTrue(thrown.getMessage().contains("Start date cannot be null"));
+    }
+
+    @Test
+    void TestSaveCampaignFailNotValidName() {
+        Campaign campaignShortName = getNewCampaign("s");
+        Campaign campaignLongName = getNewCampaign("this is a really long name to test");
+
+
+        ConstraintViolationException thrownShortName = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    campRepo.saveAndFlush(campaignShortName);
+                    
+                }
+        );
+        ConstraintViolationException thrownLongName = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    campRepo.saveAndFlush(campaignLongName);
+                    
+                }
+        );
+
+        assertTrue(thrownShortName.getMessage().contains("Name should be between 2-25 chars"));
+        assertTrue(thrownLongName.getMessage().contains("Name should be between 2-25 chars"));
+    }
+
+    @Test
+    void TestSaveCampaignFailNullValidName(){
+        Campaign campaignNullName = getNewCampaign(null);
+        campaignNullName.setName(null);
+        assertThrows(DataIntegrityViolationException.class,() -> {
+            campRepo.saveAndFlush(campaignNullName);
+            
+        });
+    }
+
+    @Test
+    void TestSaveCampaignFailNegativeBid() {
+        Campaign campaign = getNewCampaign("negativeBid");
+        campaign.setBid(-1L);
+
+        ConstraintViolationException thrown = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    campRepo.saveAndFlush(campaign);
+                }
+        );
+        assertTrue(thrown.getMessage().contains("must be greater than or equal to 0.0"));
     }
 
 }

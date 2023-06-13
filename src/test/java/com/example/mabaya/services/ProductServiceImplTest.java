@@ -1,9 +1,11 @@
 package com.example.mabaya.services;
 
+import com.example.mabaya.consts.ValidationMsg;
 import com.example.mabaya.dto.ProductDTO;
 import com.example.mabaya.dto.projections.TopProductProjection;
 import com.example.mabaya.entities.Category;
 import com.example.mabaya.entities.Product;
+import com.example.mabaya.exeption.AppValidationException;
 import com.example.mabaya.repositories.ProductRepo;
 import com.example.mabaya.servises.impls.ProductServiceImpl;
 import com.example.mabaya.servises.interfaces.CategoryService;
@@ -36,7 +38,7 @@ class ProductServiceImplTest {
     @Test
     void testUpsert() {
         ProductDTO productDTO = new ProductDTO();
-        productDTO.setCategory("Electronics");
+        productDTO.setCategoryName("Electronics");
 
         Category category = new Category();
         category.setName("Electronics");
@@ -63,7 +65,7 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void testGetProductsBySerialNumbers() {
+    void testGetProductsByValidSerialNumbers() {
         Set<String> serialNumbers = new HashSet<>(Arrays.asList("SN1", "SN2"));
 
         Product product1 = new Product();
@@ -77,5 +79,22 @@ class ProductServiceImplTest {
         Set<Product> result = productService.getProductsBySerialNumbers(serialNumbers);
         assertNotNull(result);
         assertEquals(2, result.size());
+    }
+
+    @Test
+    void testGetProductsByFakeSerialNumbers() {
+        Set<String> serialNumbers = new HashSet<>(Arrays.asList("SN1", "SN2"));
+
+        Product product1 = new Product();
+        product1.setProductSerialNumber("SN1");
+
+        Product product2 = new Product();
+        product2.setProductSerialNumber("SN2");
+
+        when(productRepo.findAllById(any())).thenReturn(List.of(product1));
+
+        Exception exception = assertThrows(AppValidationException.class, () ->
+                productService.getProductsBySerialNumbers(serialNumbers));
+        assertTrue(exception.getMessage().contains(ValidationMsg.notFoundInDb(product2.getProductSerialNumber())));
     }
 }

@@ -1,5 +1,6 @@
 package com.example.mabaya.entities;
 
+import com.example.mabaya.consts.ValidationMsg;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ class ProductTest {
         Set<ConstraintViolation<Product>> violations = validator.validate(product);
 
         assertFalse(violations.isEmpty());
-        assertEquals("Product Serial Number cannot be empty", violations.iterator().next().getMessage());
+        assertEquals("Product Serial Number should be at lease size 1 and contain letters and digits", violations.iterator().next().getMessage());
     }
 
     @Test

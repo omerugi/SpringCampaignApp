@@ -1,7 +1,7 @@
 -- Schema for 'campaign' table
 CREATE TABLE IF NOT EXISTS campaign (
                                         id SERIAL PRIMARY KEY,
-                                        name VARCHAR(25) CHECK (LENGTH(name) > 1),
+                                        name VARCHAR(25) NOT NULL CHECK (LENGTH(name) > 1),
                                         start_date DATE NOT NULL,
                                         bid DECIMAL CHECK (bid >= 0),
                                         active BOOLEAN DEFAULT TRUE

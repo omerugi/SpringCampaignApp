@@ -20,7 +20,7 @@ public class Campaign {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     @Size(min = 2, max = 25, message = "Name should be between 2-25 chars")
     private String name;
 

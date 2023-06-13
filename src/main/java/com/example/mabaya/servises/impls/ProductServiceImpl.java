@@ -1,7 +1,9 @@
 package com.example.mabaya.servises.impls;
 
+import com.example.mabaya.consts.ValidationMsg;
 import com.example.mabaya.dto.ProductDTO;
 import com.example.mabaya.entities.Category;
+import com.example.mabaya.exeption.AppValidationException;
 import com.example.mabaya.repositories.ProductRepo;
 import com.example.mabaya.dto.projections.TopProductProjection;
 import com.example.mabaya.entities.Product;
@@ -9,7 +11,6 @@ import com.example.mabaya.servises.interfaces.CategoryService;
 import com.example.mabaya.servises.interfaces.ProductService;
 import com.example.mabaya.utils.ProductUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -33,16 +34,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public TopProductProjection getHighestBiddedProductByCategorty(String category) {
         Optional<TopProductProjection> highestBiddedProducts = productRepo.findTopPromotedProduct(category);
-        return highestBiddedProducts.orElseThrow(()-> new IllegalArgumentException("Threre are no top products"));
+        return highestBiddedProducts.orElseThrow(null);
     }
 
     @Override
     public Set<Product> getProductsBySerialNumbers(Set<String> productSerialNumbers){
-        List<Product> existingProductSerialNumbers = (List<Product>) productRepo.findAllById(productSerialNumbers);
+        List<Product> existingProductSerialNumbers = productRepo.findAllById(productSerialNumbers);
         if (existingProductSerialNumbers.size() != productSerialNumbers.size()) {
             Set<String> inDB = existingProductSerialNumbers.stream().map(Product::getProductSerialNumber).collect(Collectors.toSet());
-            Set<String> notInDB = productSerialNumbers.stream().filter(psn -> !inDB.contains(psn)).collect(Collectors.toSet());
-            throw new IllegalArgumentException("The serial numbers: "+ notInDB +" are not in the DB");
+            List<String> notInDB = productSerialNumbers.stream().filter(psn -> !inDB.contains(psn)).toList();
+            throw new AppValidationException(ValidationMsg.notFoundInDb(notInDB));
         }
         return new HashSet<>(existingProductSerialNumbers);
     }
@@ -53,15 +54,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Optional<Product> getByTitle(String title) {return productRepo.findByTitle(title);}
+
+    @Override
     public void deleteBySerialNumber(String serialNumber) {
         Optional<Product> opProductFromDB = getBySerialNumber(serialNumber);
-        Product productFromDB = opProductFromDB.orElseThrow(()-> new IllegalArgumentException("Serial number not in the DB"));
+        Product productFromDB = opProductFromDB.orElseThrow(()-> new AppValidationException(ValidationMsg.notFoundInDb(serialNumber)));
         productRepo.delete(productFromDB);
     }
 
     private Product createProductFromDTO(ProductDTO productDTO){
-        Optional<Category> opCategoryFromDB = categoryService.getByName(productDTO.getCategory());
-        Category categoryFromDB = opCategoryFromDB.orElseThrow(()-> new IllegalArgumentException("Category name was not found"));
+        Optional<Category> opCategoryFromDB = categoryService.getByName(productDTO.getCategoryName());
+        Category categoryFromDB = opCategoryFromDB.orElseThrow(()-> new AppValidationException(ValidationMsg.notFoundInDb(productDTO.getCategoryName())));
         return ProductUtils.getProductFromProductDTO(productDTO,categoryFromDB);
     }
 

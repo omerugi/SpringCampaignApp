@@ -20,7 +20,7 @@ public class CampaignDTO {
     @NotEmpty(message = "Name cannot be empty")
     private String name;
 
-    @NotNull
+    @NotNull(message = "StartDate cannot be null")
     private LocalDate startDate;
 
     @DecimalMin(value = "0.0", inclusive = true, message = "Bid cannot be negative")
@@ -30,4 +30,15 @@ public class CampaignDTO {
 
     private Set<String> productSerialNumbers = new HashSet<>();
 
+    @Override
+    public String toString() {
+        return "CampaignDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", startDate=" + startDate +
+                ", bid=" + bid +
+                ", active=" + active +
+                ", productSerialNumbers=" + productSerialNumbers +
+                '}';
+    }
 }

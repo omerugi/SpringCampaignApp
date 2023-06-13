@@ -4,10 +4,12 @@ import com.example.mabaya.MabayaApplication;
 import com.example.mabaya.entities.Category;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
@@ -25,29 +27,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class CategoryRepoTest {
 
 
-    @Autowired
     CategoryRepo categoryRepo;
+    @Autowired
+    public void setCategoryRepo(CategoryRepo categoryRepo){
+        this.categoryRepo = categoryRepo;
+    }
 
     @PersistenceContext
     EntityManager entityManager;
 
-
-    private void clearAndFlush(){
-        entityManager.clear();
-        entityManager.flush();
-    }
-
-    @Test
-    void TestSaveCategory() {
-        Category categoryToSave = new Category();
-        categoryToSave.setName("test-cat");
-        categoryRepo.save(categoryToSave);
-
-        clearAndFlush();
-        Category foundCategory = entityManager.find(Category.class, categoryToSave.getId());
-
-        assertEquals(foundCategory.getId(), categoryToSave.getId());
-    }
 
     @Test
     void testFindCategoryById() {
@@ -59,15 +47,63 @@ class CategoryRepoTest {
     }
 
     @Test
-    void testFindCategoryByName(){
+    void testFindCategoryByNameFound(){
         Category categoryToSave = new Category();
         categoryToSave.setName("test-cat");
-        categoryRepo.save(categoryToSave);
-        clearAndFlush();
+        categoryRepo.saveAndFlush(categoryToSave);
 
         Optional<Category> foundCategory = categoryRepo.findByName(categoryToSave.getName());
         assertTrue(foundCategory.isPresent());
         assertEquals(foundCategory.get().getId(), categoryToSave.getId());
+    }
+
+    @Test
+    void testFindCategoryByNotFound(){
+        Optional<Category> foundCategory = categoryRepo.findByName("Made up category that is not in DB");
+        assertFalse(foundCategory.isPresent());
+    }
+
+    @Test
+    void TestSaveCategorySuccesses() {
+        Category categoryToSave = new Category();
+        categoryToSave.setName("test-cat");
+        categoryRepo.saveAndFlush(categoryToSave);
+
+        Category foundCategory = entityManager.find(Category.class, categoryToSave.getId());
+        assertEquals(foundCategory.getId(), categoryToSave.getId());
+    }
+
+    @Test
+    void TestSaveCampaignFailNotValidName() {
+        Category categoryShortName = new Category();
+        categoryShortName.setName("T");
+        Category categoryLongName = new Category();
+        categoryLongName.setName("this is a really long name to test");
+
+
+        ConstraintViolationException thrownShortName = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    categoryRepo.saveAndFlush(categoryShortName);
+                }
+        );
+        ConstraintViolationException thrownLongName = assertThrows(
+                ConstraintViolationException.class,
+                () -> {
+                    categoryRepo.saveAndFlush(categoryLongName);
+                }
+        );
+        assertTrue(thrownShortName.getMessage().contains("Name should be between 2-25 chars"));
+        assertTrue(thrownLongName.getMessage().contains("Name should be between 2-25 chars"));
+
+    }
+
+    @Test
+    void TestSaveCategoryFailNullName(){
+        Category categoryNullName = new Category();
+        assertThrows(DataIntegrityViolationException.class,() -> {
+            categoryRepo.saveAndFlush(categoryNullName);
+        });
     }
 
 }

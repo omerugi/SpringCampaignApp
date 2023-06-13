@@ -2,6 +2,7 @@ package com.example.mabaya.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductDTO {
-    @NotEmpty(message = "Product Serial Number cannot be empty")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Product Serial Number should be at lease size 1 and contain letters and digits")
     String productSerialNumber;
 
     @Size(min = 2, max = 25, message = "Title should be between 2-25 chars")
@@ -21,5 +22,16 @@ public class ProductDTO {
     private boolean active = true;
 
     @NotEmpty(message = "Category name cannot be empty")
-    private String category;
+    private String categoryName;
+
+    @Override
+    public String toString() {
+        return "ProductDTO{" +
+                "productSerialNumber='" + productSerialNumber + '\'' +
+                ", title='" + title + '\'' +
+                ", price=" + price +
+                ", active=" + active +
+                ", categoryName='" + categoryName + '\'' +
+                '}';
+    }
 }

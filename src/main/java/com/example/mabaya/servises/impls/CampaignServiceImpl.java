@@ -1,5 +1,7 @@
 package com.example.mabaya.servises.impls;
 
+import com.example.mabaya.consts.ValidationMsg;
+import com.example.mabaya.exeption.AppValidationException;
 import com.example.mabaya.repositories.CampaignRepo;
 import com.example.mabaya.dto.CampaignDTO;
 import com.example.mabaya.entities.Campaign;
@@ -33,7 +35,7 @@ public class CampaignServiceImpl implements CampaignService {
 
     private Campaign createCampaignFromDTO(CampaignDTO campaignDTO) {
         if (campaignDTO.getProductSerialNumbers().isEmpty()) {
-            throw new IllegalArgumentException("Product list cannot be empty");
+            throw new AppValidationException(ValidationMsg.emptyFiled("Product Serial Numbers"));
         }
         Set<Product> products = productService.getProductsBySerialNumbers(campaignDTO.getProductSerialNumbers());
         return CampaignUtils.getCampaignFromCampaignDTO(campaignDTO, products);
@@ -47,7 +49,7 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public void deleteById(Long id) {
         Optional<Campaign> opCampaignFromDB = getById(id);
-        Campaign campaign = opCampaignFromDB.orElseThrow(() -> new IllegalArgumentException("ID was not gound in the DB"));
+        Campaign campaign = opCampaignFromDB.orElseThrow(() -> new AppValidationException(ValidationMsg.notFoundInDb(id)));
         campaignRepo.delete(campaign);
     }
 }

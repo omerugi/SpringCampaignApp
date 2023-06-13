@@ -33,9 +33,7 @@ class CampaignTest {
         campaign.setName("Test Campaign");
         campaign.setStartDate(LocalDate.now());
         campaign.setBid(-10.0);
-
         Set<ConstraintViolation<Campaign>> violations = validator.validate(campaign);
-
         assertFalse(violations.isEmpty());
         assertEquals("must be greater than or equal to 0.0", violations.iterator().next().getMessage());
     }

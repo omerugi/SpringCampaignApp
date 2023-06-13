@@ -1,7 +1,7 @@
 -- Schema for 'campaign' table
 CREATE TABLE IF NOT EXISTS campaign (
                                         id SERIAL PRIMARY KEY,
-                                        name VARCHAR(25) CHECK (LENGTH(name) > 1),
+                                        name VARCHAR(25) NOT NULL CHECK (LENGTH(name) > 1),
     start_date DATE NOT NULL,
     bid DECIMAL CHECK (bid >= 0),
     active BOOLEAN DEFAULT TRUE
@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS category (
 -- Schema for 'product' table
 CREATE TABLE IF NOT EXISTS product (
     product_serial_number VARCHAR(255) NOT NULL PRIMARY KEY,
-    title VARCHAR(25) NOT NULL UNIQUE CHECK (LENGTH(title) > 1),
+    title VARCHAR(25) UNIQUE NOT NULL CHECK (LENGTH(title) > 1),
     price DECIMAL NOT NULL CHECK (price >= 0),
     active BOOLEAN DEFAULT TRUE,
-    category_id INTEGER,
+    category_id INTEGER NOT NULL,
     FOREIGN KEY (category_id) REFERENCES category(id)
     );
 

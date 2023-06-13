@@ -15,6 +15,7 @@ public interface ProductService {
     TopProductProjection getHighestBiddedProductByCategorty(String category);
 
     Optional<Product> getBySerialNumber(String serialNumbers);
+    Optional<Product> getByTitle(String title);
 
     void deleteBySerialNumber(String serialNumber);
 }
