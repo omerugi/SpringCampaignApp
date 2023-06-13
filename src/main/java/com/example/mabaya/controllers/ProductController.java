@@ -31,21 +31,16 @@ public class ProductController {
 
     @GetMapping("/serveAd/{category}")
     public ResponseEntity<TopProductProjection> serveAd(@PathVariable @NonNull String category) {
-        return new ResponseEntity<>(productService.getHighestBiddedProductByCategorty(category), HttpStatus.OK);
+        Optional<TopProductProjection> topProductProjection = productService.getHighestBiddedProductByCategorty(category);
+        return topProductProjection.map(tpp -> new ResponseEntity<>(tpp, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/{serialNumber}")
     public ResponseEntity<Product> getBySerialNumber(@PathVariable String serialNumber) {
         Optional<Product> productFromDB = productService.getBySerialNumber(serialNumber);
-        return productFromDB.map(product -> new ResponseEntity<>(product, HttpStatus.FOUND))
-                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
-    }
-
-    @GetMapping("/{title}")
-    public ResponseEntity<Product> getByTitle(@PathVariable String title) {
-        Optional<Product> productFromDB = productService.getByTitle(title);
-        return productFromDB.map(product -> new ResponseEntity<>(product, HttpStatus.FOUND))
-                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+        return productFromDB.map(product -> new ResponseEntity<>(product, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{serialNumber}")

@@ -29,15 +29,8 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<Category> getById(@PathVariable("id") Long id){
         Optional<Category> categoryFromDB = categoryService.getByid(id);
-        return categoryFromDB.map(category -> new ResponseEntity<>(category, HttpStatus.FOUND))
-                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
-    }
-
-    @GetMapping("/{name}")
-    public ResponseEntity<Category> getByName(@PathVariable("name") String name){
-        Optional<Category> categoryFromDB = categoryService.getByName(name);
-        return categoryFromDB.map(category -> new ResponseEntity<>(category, HttpStatus.FOUND))
-                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+        return categoryFromDB.map(category -> new ResponseEntity<>(category, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")

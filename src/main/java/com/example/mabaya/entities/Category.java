@@ -1,8 +1,11 @@
 package com.example.mabaya.entities;
 
 
+import com.example.mabaya.consts.ValidationMsg;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +25,8 @@ public class Category {
     private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
-    @Size(min = 2, max = 25, message = "Name should be between 2-25 chars")
+    @Size(min = 2, max = 25, message =ValidationMsg.SIZE_CONSTRAINT_NAME_2_25)
+    @NotNull(message =  ValidationMsg.NULL_NAME)
     private String name;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)

@@ -31,7 +31,7 @@ class GlobalExceptionHandlerTest {
     private GlobalExceptionHandler globalExceptionHandler;
 
     @Test
-    void handleAppValidationExceptionTest() {
+    void TesthandleAppValidationException() {
         AppValidationException exception = new AppValidationException("Validation exception");
         ResponseEntity<Object> response = globalExceptionHandler.handleAppValidationException(exception);
 
@@ -41,7 +41,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleMethodArgumentExceptionsTest() {
+    void TesthandleMethodArgumentExceptions() {
         MethodParameter methodParameter = mock(MethodParameter.class);
         BindingResult bindingResult = mock(BindingResult.class);
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(methodParameter,bindingResult);
@@ -52,7 +52,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleRunTimeExceptionTest() {
+    void TesthandleRunTimeException() {
         RuntimeException exception = new RuntimeException("Runtime exception");
         ResponseEntity<Object> response = globalExceptionHandler.handleRunTimeException(exception);
 
@@ -62,7 +62,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleConstraintViolationExceptionTest() {
+    void TesthandleConstraintViolationException() {
         ConstraintViolationException exception = new ConstraintViolationException("Constraint violation exception", new HashSet<>());
         ResponseEntity<Object> response = globalExceptionHandler.handleConstraintViolationException(exception);
 
@@ -72,7 +72,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleDataIntegrityViolationExceptionTest() {
+    void TesthandleDataIntegrityViolationException() {
         RuntimeException cause = new RuntimeException(new RuntimeException("Data integrity violation exception"));
         DataIntegrityViolationException exception = new DataIntegrityViolationException("Top level exception", cause);
         ResponseEntity<Object> response = globalExceptionHandler.handleDataIntegrityViolationException(exception);
@@ -83,12 +83,12 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleMethodArgumentTypeMismatchExceptionTest() {
+    void TesthandleMethodArgumentTypeMismatchException() {
         // TODO: need to create this test
     }
 
     @Test
-    void handleHttpMessageNotReadableExceptionTest() {
+    void TesthandleHttpMessageNotReadableException() {
         // TODO: need to create this test
     }
 

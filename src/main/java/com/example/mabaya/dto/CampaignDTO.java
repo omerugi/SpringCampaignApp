@@ -1,8 +1,8 @@
 package com.example.mabaya.dto;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import com.example.mabaya.consts.ValidationMsg;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -17,18 +17,24 @@ public class CampaignDTO {
 
     private Long id;
 
-    @NotEmpty(message = "Name cannot be empty")
+    @Size(min = 2, max = 25, message = ValidationMsg.SIZE_CONSTRAINT_NAME_2_25)
+    @NotNull(message = ValidationMsg.NULL_NAME)
     private String name;
 
-    @NotNull(message = "StartDate cannot be null")
+    @NotNull(message = ValidationMsg.NULL_START_DATE)
     private LocalDate startDate;
 
-    @DecimalMin(value = "0.0", inclusive = true, message = "Bid cannot be negative")
+    @DecimalMin(value = "0.0", inclusive = true, message = ValidationMsg.NUM_BID_NEGATIVE)
     private double bid;
 
     private boolean active = true;
 
-    private Set<String> productSerialNumbers = new HashSet<>();
+    @NotEmpty(message = ValidationMsg.EMPTY_PSN)
+    private Set<@Valid @Pattern(regexp="^[a-zA-Z0-9]+$", message = ValidationMsg.INVALID_PSN)String> productSerialNumbers = new HashSet<>();
+
+    public void addProductSerialNumber(String productSerialNumber){
+        productSerialNumbers.add(productSerialNumber);
+    }
 
     @Override
     public String toString() {

@@ -10,6 +10,7 @@ import com.example.mabaya.servises.interfaces.CampaignService;
 import com.example.mabaya.servises.interfaces.ProductService;
 import com.example.mabaya.utils.CampaignUtils;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class CampaignServiceImpl implements CampaignService {
 
     private Campaign createCampaignFromDTO(CampaignDTO campaignDTO) {
         if (campaignDTO.getProductSerialNumbers().isEmpty()) {
-            throw new AppValidationException(ValidationMsg.emptyFiled("Product Serial Numbers"));
+            throw new AppValidationException(ValidationMsg.EMPTY_PSN);
         }
         Set<Product> products = productService.getProductsBySerialNumbers(campaignDTO.getProductSerialNumbers());
         return CampaignUtils.getCampaignFromCampaignDTO(campaignDTO, products);
@@ -49,7 +50,7 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public void deleteById(Long id) {
         Optional<Campaign> opCampaignFromDB = getById(id);
-        Campaign campaign = opCampaignFromDB.orElseThrow(() -> new AppValidationException(ValidationMsg.notFoundInDb(id)));
+        Campaign campaign = opCampaignFromDB.orElseThrow(() -> new AppValidationException(id+" "+ValidationMsg.NOT_FOUND_ID));
         campaignRepo.delete(campaign);
     }
 }

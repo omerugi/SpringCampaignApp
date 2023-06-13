@@ -87,6 +87,6 @@ class CategoryServiceImplTest {
 
         Exception exception = assertThrows(AppValidationException.class, () -> categoryService.deleteById(id));
 
-        assertTrue(exception.getMessage().contains(ValidationMsg.cannotDeleteAttachedEntity(id, "111")));
+        assertTrue(exception.getMessage().contains(ValidationMsg.CANNOT_DELETE_CATEGORY_ATTACHED_PRODUCTS+" 111"));
     }
 }

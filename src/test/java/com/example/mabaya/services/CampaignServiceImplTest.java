@@ -75,7 +75,7 @@ class CampaignServiceImplTest {
         CampaignDTO campaignToSaveDTO = CampaignUtils.getCampaignDTOFromCampaign(savedCamp);
         Exception exception = assertThrows(AppValidationException.class,
                 ()->campaignService.upsert(campaignToSaveDTO));
-        assertTrue(exception.getMessage().contains(ValidationMsg.emptyFiled("Product Serial Numbers")));
+        assertTrue(exception.getMessage().contains(ValidationMsg.EMPTY_PSN));
     }
 
 

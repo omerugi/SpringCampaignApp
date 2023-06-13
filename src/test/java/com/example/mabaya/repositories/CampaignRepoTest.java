@@ -1,6 +1,7 @@
 package com.example.mabaya.repositories;
 
 import com.example.mabaya.MabayaApplication;
+import com.example.mabaya.consts.ValidationMsg;
 import com.example.mabaya.entities.Campaign;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = MabayaApplication.class)
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@SqlGroup({@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:schema.sql","classpath:data.sql"}),
+@SqlGroup({@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:schema.sql", "classpath:data.sql"}),
         @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:drop.sql")})
 class CampaignRepoTest {
 
@@ -33,17 +33,17 @@ class CampaignRepoTest {
     CategoryRepo categoryRepo;
 
     @Autowired
-    public void setCampRepo(CampaignRepo campRepo){
+    public void setCampRepo(CampaignRepo campRepo) {
         this.campRepo = campRepo;
     }
 
     @Autowired
-    public void setProductRepo(ProductRepo productRepo){
+    public void setProductRepo(ProductRepo productRepo) {
         this.productRepo = productRepo;
     }
 
     @Autowired
-    public void setCategoryRepo(CategoryRepo categoryRepo){
+    public void setCategoryRepo(CategoryRepo categoryRepo) {
         this.categoryRepo = categoryRepo;
     }
 
@@ -119,7 +119,7 @@ class CampaignRepoTest {
     void TestSaveCampaignSuccesses() {
         Campaign campaignToSave = getNewCampaign("test");
         campRepo.saveAndFlush(campaignToSave);
-        
+
         Campaign foundCampaign = entityManager.find(Campaign.class, campaignToSave.getId());
         assertEquals(campaignToSave.getId(), foundCampaign.getId());
     }
@@ -131,47 +131,45 @@ class CampaignRepoTest {
 
         ConstraintViolationException thrown = assertThrows(
                 ConstraintViolationException.class,
-                () -> {
-                    campRepo.saveAndFlush(campaignNullDate);
-                    
-                }
-        );
-        assertTrue(thrown.getMessage().contains("Start date cannot be null"));
+                () -> campRepo.saveAndFlush(campaignNullDate));
+        assertTrue(thrown.getMessage().contains(ValidationMsg.NULL_START_DATE));
     }
 
     @Test
-    void TestSaveCampaignFailNotValidName() {
+    void TestSaveCampaignFailShortName() {
         Campaign campaignShortName = getNewCampaign("s");
-        Campaign campaignLongName = getNewCampaign("this is a really long name to test");
-
-
         ConstraintViolationException thrownShortName = assertThrows(
                 ConstraintViolationException.class,
-                () -> {
-                    campRepo.saveAndFlush(campaignShortName);
-                    
-                }
-        );
-        ConstraintViolationException thrownLongName = assertThrows(
-                ConstraintViolationException.class,
-                () -> {
-                    campRepo.saveAndFlush(campaignLongName);
-                    
-                }
-        );
-
-        assertTrue(thrownShortName.getMessage().contains("Name should be between 2-25 chars"));
-        assertTrue(thrownLongName.getMessage().contains("Name should be between 2-25 chars"));
+                () -> campRepo.saveAndFlush(campaignShortName));
+        assertTrue(thrownShortName.getMessage().contains(ValidationMsg.SIZE_CONSTRAINT_NAME_2_25));
     }
 
     @Test
-    void TestSaveCampaignFailNullValidName(){
+    void TestSaveCampaignFailLongName() {
+        Campaign campaignLongName = getNewCampaign("this is a really long name to test");
+        ConstraintViolationException thrownLongName = assertThrows(
+                ConstraintViolationException.class,
+                () -> campRepo.saveAndFlush(campaignLongName));
+        assertTrue(thrownLongName.getMessage().contains(ValidationMsg.SIZE_CONSTRAINT_NAME_2_25));
+    }
+
+    @Test
+    void TestSaveCampaignFailEmptyName() {
+        Campaign campaignEmptyName = getNewCampaign("");
+        ConstraintViolationException thrownShortName = assertThrows(
+                ConstraintViolationException.class,
+                () -> campRepo.saveAndFlush(campaignEmptyName));
+        assertTrue(thrownShortName.getMessage().contains(ValidationMsg.SIZE_CONSTRAINT_NAME_2_25));
+    }
+
+    @Test
+    void TestSaveCampaignFailNullName() {
         Campaign campaignNullName = getNewCampaign(null);
         campaignNullName.setName(null);
-        assertThrows(DataIntegrityViolationException.class,() -> {
-            campRepo.saveAndFlush(campaignNullName);
-            
-        });
+        ConstraintViolationException nullLongName = assertThrows(
+                ConstraintViolationException.class,
+                () -> campRepo.saveAndFlush(campaignNullName));
+        assertTrue(nullLongName.getMessage().contains(ValidationMsg.NULL_NAME));
     }
 
     @Test
@@ -179,13 +177,12 @@ class CampaignRepoTest {
         Campaign campaign = getNewCampaign("negativeBid");
         campaign.setBid(-1L);
 
-        ConstraintViolationException thrown = assertThrows(
+        ConstraintViolationException thrownNullName = assertThrows(
                 ConstraintViolationException.class,
-                () -> {
-                    campRepo.saveAndFlush(campaign);
-                }
-        );
-        assertTrue(thrown.getMessage().contains("must be greater than or equal to 0.0"));
+                () ->campRepo.saveAndFlush(campaign));
+        assertTrue(thrownNullName.getMessage().contains(ValidationMsg.NUM_BID_NEGATIVE));
     }
+
+    // TODO: Test delete
 
 }

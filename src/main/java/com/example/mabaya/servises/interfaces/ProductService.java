@@ -12,7 +12,7 @@ import java.util.Set;
 public interface ProductService {
     Product upsert(ProductDTO product);
     Set<Product> getProductsBySerialNumbers(Set<String> productSerialNumbers);
-    TopProductProjection getHighestBiddedProductByCategorty(String category);
+    Optional<TopProductProjection> getHighestBiddedProductByCategorty(String category);
 
     Optional<Product> getBySerialNumber(String serialNumbers);
     Optional<Product> getByTitle(String title);

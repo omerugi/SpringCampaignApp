@@ -38,7 +38,7 @@ class AppLoggerTest {
     }
 
     @Test
-    void logBeforeControllersTest() throws Throwable {
+    void TestlogBeforeControllers() throws Throwable {
         when(proceedingJoinPoint.proceed()).thenReturn(new Object());
         when(proceedingJoinPoint.getArgs()).thenReturn(null);
 
@@ -49,7 +49,7 @@ class AppLoggerTest {
     }
 
     @Test
-    void logExceptionsTest() {
+    void TestlogExceptions() {
         appLogger.logExceptions(proceedingJoinPoint);
 
         verify(logger).error("An exception was thrown: ", (Object[]) null);

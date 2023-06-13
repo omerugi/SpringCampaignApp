@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,62 +24,82 @@ class ProductTest {
         return category;
     }
 
-    @Test
-    void testProductSerialNumberEmptyConstraintViolation() {
+    private Product getProduct(String psn, String title){
         Product product = new Product();
-        product.setProductSerialNumber("");
-        product.setTitle("Test Product");
-        product.setPrice(50.0);
+        product.setProductSerialNumber(psn);
+        product.setTitle(title);
         product.setActive(true);
         product.setCategory(getCategory());
-
-        Set<ConstraintViolation<Product>> violations = validator.validate(product);
-
-        assertFalse(violations.isEmpty());
-        assertEquals("Product Serial Number should be at lease size 1 and contain letters and digits", violations.iterator().next().getMessage());
+        return product;
     }
 
     @Test
-    void testProductTitleEmptyConstraintViolation() {
-        Product product = new Product();
-        product.setProductSerialNumber("123456");
-        product.setTitle("");
-        product.setPrice(50.0);
-        product.setActive(true);
-        product.setCategory(getCategory());
-
+    void TestEmptyProductSerialNumberConstraintViolation() {
+        Product product = getProduct("", "title");
         Set<ConstraintViolation<Product>> violations = validator.validate(product);
-
         assertFalse(violations.isEmpty());
-        assertEquals("Title should be between 2-25 chars", violations.iterator().next().getMessage());
+        assertEquals(ValidationMsg.INVALID_PSN, violations.iterator().next().getMessage());
     }
 
     @Test
-    void testProductPriceNegativeConstraintViolation() {
-        Product product = new Product();
-        product.setProductSerialNumber("123456");
-        product.setTitle("Test Product");
+    void TestSpecialCharProductSerialNumberConstraintViolation() {
+        Product product = getProduct(">???111vv","title");
+        Set<ConstraintViolation<Product>> violations = validator.validate(product);
+        assertFalse(violations.isEmpty());
+        assertEquals(ValidationMsg.INVALID_PSN, violations.iterator().next().getMessage());
+    }
+
+    @Test
+    void TestEmptyTitleConstraintViolation() {
+        Product product = getProduct("psn1","");
+        Set<ConstraintViolation<Product>> violations = validator.validate(product);
+        assertFalse(violations.isEmpty());
+        assertEquals(ValidationMsg.SIZE_CONSTRAINT_TITLE_2_25, violations.iterator().next().getMessage());
+    }
+
+    @Test
+    void TestShortTitleConstraintViolation() {
+        Product product = getProduct("psn1","1");
+        Set<ConstraintViolation<Product>> violations = validator.validate(product);
+        assertFalse(violations.isEmpty());
+        assertEquals(ValidationMsg.SIZE_CONSTRAINT_TITLE_2_25, violations.iterator().next().getMessage());
+    }
+
+    @Test
+    void TestLongTitleConstraintViolation() {
+        Product product = getProduct("psn1","111111111111111111111111111111111111");
+        Set<ConstraintViolation<Product>> violations = validator.validate(product);
+        assertFalse(violations.isEmpty());
+        assertEquals(ValidationMsg.SIZE_CONSTRAINT_TITLE_2_25, violations.iterator().next().getMessage());
+    }
+
+    @Test
+    void TestNullTitleConstraintViolation() {
+        Product product = getProduct("psn1",null);
+        Set<ConstraintViolation<Product>> violations = validator.validate(product);
+        assertFalse(violations.isEmpty());
+        assertEquals(ValidationMsg.NULL_TITLE, violations.iterator().next().getMessage());
+    }
+
+    @Test
+    void TestNegativePriceConstraintViolation() {
+        Product product = getProduct("test","title");
         product.setPrice(-50.0);
-        product.setActive(true);
-        product.setCategory(getCategory());
 
         Set<ConstraintViolation<Product>> violations = validator.validate(product);
 
         assertFalse(violations.isEmpty());
-        assertEquals("must be greater than or equal to 0.0", violations.iterator().next().getMessage());
+        assertEquals(ValidationMsg.NUM_PRICE_NEGATIVE, violations.iterator().next().getMessage());
     }
 
     @Test
-    void testProductPriceNoCategoryViolation() {
-        Product product = new Product();
-        product.setProductSerialNumber("123456");
-        product.setTitle("Test Product");
-        product.setPrice(50.0);
-        product.setActive(true);
+    void TestNullCategoryViolation() {
+        Product product = getProduct("test","title");
+        product.setCategory(null);
 
         Set<ConstraintViolation<Product>> violations = validator.validate(product);
 
         assertFalse(violations.isEmpty());
-        assertEquals("Must have a category", violations.iterator().next().getMessage());
+        assertEquals(ValidationMsg.NULL_CATEGORY, violations.iterator().next().getMessage());
     }
 }

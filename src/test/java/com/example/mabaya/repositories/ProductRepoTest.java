@@ -2,6 +2,7 @@ package com.example.mabaya.repositories;
 
 
 import com.example.mabaya.MabayaApplication;
+import com.example.mabaya.consts.ValidationMsg;
 import com.example.mabaya.dto.projections.TopProductProjection;
 import com.example.mabaya.entities.Campaign;
 import com.example.mabaya.entities.Product;
@@ -85,13 +86,76 @@ class ProductRepoTest {
         assertSame(productListByCategory.get(0).getProductSerialNumber(), productMap.get(tppValidCategory.getProduct_serial_number()).getProductSerialNumber());
     }
 
-
     @Test
     void TestSaveProductSuccesses() {
         Product product = getProduct("test","11test");
         productRepo.saveAndFlush(product);
         Product foundProduct = entityManager.find(Product.class, product.getProductSerialNumber());
         assertEquals(product.getProductSerialNumber(), foundProduct.getProductSerialNumber());
+    }
+
+    @Test
+    void TestSaveProductNullTitle() {
+        Product categoryNullTitle = getProduct(null,"s11");
+        ConstraintViolationException thrownNullTitle = assertThrows(
+                ConstraintViolationException.class,() -> productRepo.saveAndFlush(categoryNullTitle));
+        assertTrue(thrownNullTitle.getMessage().contains(ValidationMsg.NULL_TITLE));
+    }
+
+    @Test
+    void TestSaveProductShortTitle() {
+        Product productShortTitle = getProduct("s","s11");
+        ConstraintViolationException thrownShortTitle = assertThrows(
+                ConstraintViolationException.class,
+                () -> productRepo.saveAndFlush(productShortTitle));
+        assertTrue(thrownShortTitle.getMessage().contains(ValidationMsg.SIZE_CONSTRAINT_TITLE_2_25));
+    }
+
+    @Test
+    void TestSaveProductLongTitle() {
+        Product productLongTitle = getProduct("this is a really long product title to test","s-12");
+        ConstraintViolationException thrownLongTitle = assertThrows(
+                ConstraintViolationException.class,
+                () -> productRepo.saveAndFlush(productLongTitle));
+        assertTrue(thrownLongTitle.getMessage().contains(ValidationMsg.SIZE_CONSTRAINT_TITLE_2_25));
+    }
+
+    @Test
+    void TestSaveProductEmptyTitle() {
+        Product productLongTitle = getProduct("","s-12");
+        ConstraintViolationException thrownLongTitle = assertThrows(
+                ConstraintViolationException.class,
+                () -> productRepo.saveAndFlush(productLongTitle));
+        assertTrue(thrownLongTitle.getMessage().contains(ValidationMsg.SIZE_CONSTRAINT_TITLE_2_25));
+    }
+
+
+    @Test
+    void TestSaveProductNegativePrice() {
+        Product productNegativePrice = getProduct("test","s11");
+        productNegativePrice.setPrice(-100.0);
+        ConstraintViolationException thrown = assertThrows(
+                ConstraintViolationException.class,
+                () -> productRepo.saveAndFlush(productNegativePrice));
+        assertTrue(thrown.getMessage().contains(ValidationMsg.NUM_PRICE_NEGATIVE));
+    }
+
+    @Test
+    void TestSaveProductNullSerialNumber() {
+        Product productNullSerialNumber = getProduct("test",null);
+        assertThrows(JpaSystemException.class, () -> productRepo.saveAndFlush(productNullSerialNumber));
+    }
+
+    @Test
+    void TestSaveProductNullCategory() {
+        Product productNullCategory = new Product();
+        productNullCategory.setTitle("Valid Title");
+        productNullCategory.setProductSerialNumber("SN345");
+
+        ConstraintViolationException thrown = assertThrows(
+                ConstraintViolationException.class,
+                () ->  productRepo.saveAndFlush(productNullCategory));
+        assertTrue(thrown.getMessage().contains(ValidationMsg.NULL_CATEGORY));
     }
 
     @Test
@@ -107,7 +171,6 @@ class ProductRepoTest {
         assertEquals("2",fromDataFind.get().getProductSerialNumber());
     }
 
-
     @Test
     void testFindProductByTitleFound(){
         Optional<Product> foundProduct = productRepo.findByTitle("p1");
@@ -119,73 +182,6 @@ class ProductRepoTest {
     void testFindProductByTitleNotFound(){
         Optional<Product> foundProduct = productRepo.findByTitle("Made up product title that is not in DB");
         assertFalse(foundProduct.isPresent());
-    }
-
-    @Test
-    void TestSaveProductFailNullTitle() {
-        Product categoryNullName = getProduct(null,"s11");
-        assertThrows(DataIntegrityViolationException.class,() -> {
-            productRepo.saveAndFlush(categoryNullName);
-            entityManager.flush();
-        });
-    }
-
-    @Test
-    void TestSaveProductFailInvalidTitle() {
-        Product productShortTitle = getProduct("s","s11");
-        Product productLongTitle = getProduct("this is a really long product title to test","s-12");
-
-        ConstraintViolationException thrownShortTitle = assertThrows(
-                ConstraintViolationException.class,
-                () -> {
-                    productRepo.saveAndFlush(productShortTitle);
-                }
-        );
-        ConstraintViolationException thrownLongTitle = assertThrows(
-                ConstraintViolationException.class,
-                () -> {
-                    productRepo.saveAndFlush(productLongTitle);
-                }
-        );
-
-        assertTrue(thrownShortTitle.getMessage().contains("Title should be between 2-25 chars"));
-        assertTrue(thrownLongTitle.getMessage().contains("Title should be between 2-25 chars"));
-    }
-
-    @Test
-//    @org.springframework.transaction.annotation.Transactional(propagation =
-//            Propagation.NOT_SUPPORTED)
-    void TestSaveProductFailNegativePrice() {
-        Product productNegativePrice = getProduct("test","s11");
-        productNegativePrice.setPrice(-100.0);
-        ConstraintViolationException thrown = assertThrows(
-                ConstraintViolationException.class,
-                () -> {
-                    productRepo.saveAndFlush(productNegativePrice);
-                }
-        );
-        assertTrue(thrown.getMessage().contains("must be greater than or equal to 0"));
-    }
-
-    @Test
-    void TestSaveProductFailNullSerialNumber() {
-        Product productNullSerialNumber = getProduct("test",null);
-        assertThrows(JpaSystemException.class, () -> productRepo.saveAndFlush(productNullSerialNumber));
-    }
-
-    @Test
-    void TestSaveProductFailNullCategory() {
-        Product productNullCategory = new Product();
-        productNullCategory.setTitle("Valid Title");
-        productNullCategory.setProductSerialNumber("SN345");
-
-        ConstraintViolationException thrown = assertThrows(
-                ConstraintViolationException.class,
-                () -> {
-                    productRepo.saveAndFlush(productNullCategory);
-                }
-        );
-        assertTrue(thrown.getMessage().contains("Must have a category"));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.mabaya.entities;
 
+import com.example.mabaya.consts.ValidationMsg;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
@@ -17,20 +18,31 @@ class CategoryTest {
     private Validator validator;
 
     @Test
-    void testNameConstraintViolation() {
-        Category category = new Category();
-        category.setName("");
-        Set<ConstraintViolation<Category>> violations = validator.validate(category);
-        assertFalse(violations.isEmpty());
-        assertEquals("Name should be between 2-25 chars", violations.iterator().next().getMessage());
+    void TestEmptyNameConstraintViolation() {
+        Category categoryEmptyName = new Category();
+        categoryEmptyName.setName("");
+        Set<ConstraintViolation<Category>> violationsEmptyName = validator.validate(categoryEmptyName);
+        assertFalse(violationsEmptyName.isEmpty());
+        assertEquals(ValidationMsg.SIZE_CONSTRAINT_NAME_2_25,violationsEmptyName.iterator().next().getMessage());
     }
 
     @Test
-    void testNameIsTooLongConstraintViolation() {
-        Category category = new Category();
-        category.setName("This name is definitely more than twenty-five characters long");
-        Set<ConstraintViolation<Category>> violations = validator.validate(category);
-        assertFalse(violations.isEmpty());
-        assertEquals("Name should be between 2-25 chars", violations.iterator().next().getMessage());
+    void TestShortNameConstraintViolation(){
+        Category categoryShortName = new Category();
+        categoryShortName.setName("1");
+        Set<ConstraintViolation<Category>> violationsShortName = validator.validate(categoryShortName);
+        assertFalse(violationsShortName.isEmpty());
+        assertEquals(ValidationMsg.SIZE_CONSTRAINT_NAME_2_25,violationsShortName.iterator().next().getMessage());
     }
+
+    @Test
+    void TestLongNameConstraintViolation(){
+        Category categoryLongName = new Category();
+        categoryLongName.setName("1111111111111111111111111111111111111111111111111111111111");
+        Set<ConstraintViolation<Category>> violationsLongName = validator.validate(categoryLongName);
+        assertFalse(violationsLongName.isEmpty());
+        assertEquals(ValidationMsg.SIZE_CONSTRAINT_NAME_2_25,violationsLongName.iterator().next().getMessage());
+    }
+
+
 }

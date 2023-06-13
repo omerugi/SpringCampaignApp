@@ -30,23 +30,16 @@ public class CampaignController {
                 HttpStatus.CREATED);
     }
 
-    @PostMapping("/runscheduler")
-    @ResponseStatus(HttpStatus.OK)
-    public void updateStartDate(){
-        campaignScheduler.deactivateOldCampaigns();
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<Campaign> getById(@PathVariable("id") Long id){
         Optional<Campaign> campaignFromDB = campaignService.getById(id);
-        return campaignFromDB.map(campaign -> new ResponseEntity<>(campaign, HttpStatus.FOUND))
-                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+        return campaignFromDB.map(campaign -> new ResponseEntity<>(campaign, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteById(@PathVariable("id") Long id){
-
         campaignService.deleteById(id);
     }
 

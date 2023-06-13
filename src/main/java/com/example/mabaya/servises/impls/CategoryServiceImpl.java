@@ -9,6 +9,7 @@ import com.example.mabaya.repositories.CategoryRepo;
 import com.example.mabaya.servises.interfaces.CategoryService;
 import com.example.mabaya.servises.interfaces.ProductService;
 import com.example.mabaya.utils.CategoryUtils;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,11 +45,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteById(Long id) {
-        Optional<Category> opCategoryFromDB = categoryRepo.findById(id);
-        Category categoryFromDB = opCategoryFromDB.orElseThrow(() -> new AppValidationException(ValidationMsg.notFoundInDb(id)));
+        Optional<Category> opCategoryFromDB = getByid(id);
+        Category categoryFromDB = opCategoryFromDB.orElseThrow(() -> new AppValidationException(id+" "+ValidationMsg.NOT_FOUND_ID));
         if(!categoryFromDB.getProducts().isEmpty()){
             List<String> productIdSet = categoryFromDB.getProducts().stream().map(Product::getProductSerialNumber).toList();
-            throw new AppValidationException(ValidationMsg.cannotDeleteAttachedEntity(id, productIdSet));
+            throw new AppValidationException(ValidationMsg.CANNOT_DELETE_CATEGORY_ATTACHED_PRODUCTS+" "+String.join(",",productIdSet));
         }
         categoryRepo.deleteById(id);
     }

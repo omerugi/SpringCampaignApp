@@ -1,34 +1,34 @@
 package com.example.mabaya.consts;
 
-import java.util.List;
 
 public class ValidationMsg {
     public ValidationMsg() {}
 
-    private static final String EMPTY_FILED = "%s cannot be empty";
-    public static String emptyFiled(String filedName){
-        return String.format(EMPTY_FILED,filedName);
-    }
+    // Empty fields msgs:
+    public static final String EMPTY_PSN = "Product Serial Numbers cannot be empty";
+    public static final String EMPTY_CATEGORY_NAME = "Category Name cannot be null";
 
-    private static final String NOT_FOUND_IN_DB = "%s - not found in the DB";
-    public static String notFoundInDb(String id){
-        return String.format(NOT_FOUND_IN_DB,id);
-    }
-    public static String notFoundInDb(List<String> ids){
-        return String.format(NOT_FOUND_IN_DB,String.join(",", ids));
-    }
-    public static String notFoundInDb(Long id){
-        return String.format(NOT_FOUND_IN_DB,id);
-    }
+    // Size fields msgs:
+    public static final String SIZE_CONSTRAINT_NAME_2_25 = "Name should be between 2-25 chars";
+    public static final String SIZE_CONSTRAINT_TITLE_2_25 = "Title should be between 2-25 chars";
 
-    private static final String CANNOT_DELETE_ATTACHED_ENTITY = "Cannot delete %s, attached to %s";
-    public static String cannotDeleteAttachedEntity(Long id, List<String> ids){
-        return String.format(CANNOT_DELETE_ATTACHED_ENTITY,id,String.join(",", ids));
-    }
-    public static String cannotDeleteAttachedEntity(Long id, String ids){
-        return String.format(CANNOT_DELETE_ATTACHED_ENTITY,id,ids);
-    }
+    // Null fields msgs:
+    public static final String NULL_START_DATE = "Start Date cannot be null";
+    public static final String NULL_NAME = "Name cannot be null";
+    public static final String NULL_TITLE = "Title cannot be null";
+    public static final String NULL_CATEGORY = "Category cannot be null";
 
+    // Numeric field msgs:
+    public static final String NUM_BID_NEGATIVE = "Bid cannot be negative";
+    public static final String NUM_PRICE_NEGATIVE = "Price cannot be negative";
+    // Invalid field msgs:
+    public static final String INVALID_PSN = "Product Serial Number should be at lease size 1 and contain only letters and digits";
 
+    // Delete msgs:
+    public static final String CANNOT_DELETE_CATEGORY_ATTACHED_PRODUCTS = "Cannot delete Categories, that products are attached to";
 
+    // Not found msgs:
+    public static final String NOT_FOUND_PSN = "Product Serial Number was not found in the DB";
+    public static final String NOT_FOUND_CATEGORY_NAME = "Category Name was not found in the DB";
+    public static final String NOT_FOUND_ID = "ID was not found in the DB";
 }

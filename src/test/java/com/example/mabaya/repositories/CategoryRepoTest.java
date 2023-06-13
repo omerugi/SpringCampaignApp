@@ -1,6 +1,7 @@
 package com.example.mabaya.repositories;
 
 import com.example.mabaya.MabayaApplication;
+import com.example.mabaya.consts.ValidationMsg;
 import com.example.mabaya.entities.Category;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
@@ -74,36 +74,43 @@ class CategoryRepoTest {
     }
 
     @Test
-    void TestSaveCampaignFailNotValidName() {
+    void TestSaveCampaignFailShortName() {
         Category categoryShortName = new Category();
         categoryShortName.setName("T");
+        ConstraintViolationException thrownShortName = assertThrows(
+                ConstraintViolationException.class,
+                () -> categoryRepo.saveAndFlush(categoryShortName));
+        assertTrue(thrownShortName.getMessage().contains(ValidationMsg.SIZE_CONSTRAINT_NAME_2_25));
+    }
+
+    @Test
+    void TestSaveCampaignFailLongName() {
         Category categoryLongName = new Category();
         categoryLongName.setName("this is a really long name to test");
+        ConstraintViolationException thrownLongName = assertThrows(
+                ConstraintViolationException.class,
+                () -> categoryRepo.saveAndFlush(categoryLongName));
+        assertTrue(thrownLongName.getMessage().contains(ValidationMsg.SIZE_CONSTRAINT_NAME_2_25));
+    }
 
+    @Test
+    void TestSaveCampaignFailEmptyName() {
+        Category categoryEmptyName = new Category();
+        categoryEmptyName.setName("");
 
         ConstraintViolationException thrownShortName = assertThrows(
                 ConstraintViolationException.class,
-                () -> {
-                    categoryRepo.saveAndFlush(categoryShortName);
-                }
-        );
-        ConstraintViolationException thrownLongName = assertThrows(
-                ConstraintViolationException.class,
-                () -> {
-                    categoryRepo.saveAndFlush(categoryLongName);
-                }
-        );
-        assertTrue(thrownShortName.getMessage().contains("Name should be between 2-25 chars"));
-        assertTrue(thrownLongName.getMessage().contains("Name should be between 2-25 chars"));
-
+                () -> categoryRepo.saveAndFlush(categoryEmptyName));
+        assertTrue(thrownShortName.getMessage().contains(ValidationMsg.SIZE_CONSTRAINT_NAME_2_25));
     }
 
     @Test
     void TestSaveCategoryFailNullName(){
         Category categoryNullName = new Category();
-        assertThrows(DataIntegrityViolationException.class,() -> {
+        ConstraintViolationException thrownNullName = assertThrows(ConstraintViolationException.class,() -> {
             categoryRepo.saveAndFlush(categoryNullName);
         });
+        assertTrue(thrownNullName.getMessage().contains(ValidationMsg.NULL_NAME));
     }
 
 }

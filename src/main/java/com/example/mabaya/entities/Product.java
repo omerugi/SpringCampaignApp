@@ -1,5 +1,6 @@
 package com.example.mabaya.entities;
 
+import com.example.mabaya.consts.ValidationMsg;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -19,15 +20,16 @@ public class Product {
 
     @Id
     @Column(name = "product_serial_number", nullable = false)
-    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Product Serial Number should be at lease size 1 and contain letters and digits")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = ValidationMsg.INVALID_PSN)
     private String productSerialNumber;
 
     @Column(name = "title", nullable = false, unique = true)
-    @Size(min = 2, max = 25, message = "Title should be between 2-25 chars")
+    @Size(min = 2, max = 25, message = ValidationMsg.SIZE_CONSTRAINT_TITLE_2_25)
+    @NotNull(message = ValidationMsg.NULL_TITLE)
     private String title;
 
     @Column(name = "price", nullable = false)
-    @DecimalMin(value = "0.0", inclusive = true)
+    @DecimalMin(value = "0.0", inclusive = true, message = ValidationMsg.NUM_PRICE_NEGATIVE)
     private double price;
 
     @Column(name = "active", columnDefinition = "boolean default true")
@@ -39,7 +41,7 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    @NotNull(message = "Must have a category")
+    @NotNull(message = ValidationMsg.NULL_CATEGORY)
     private Category category;
 
 }

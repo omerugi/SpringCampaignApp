@@ -2,6 +2,7 @@ package com.example.mabaya.utils;
 
 import com.example.mabaya.dto.CategoryDTO;
 import com.example.mabaya.entities.Category;
+import jakarta.validation.Valid;
 
 public class CategoryUtils {
     private CategoryUtils(){}

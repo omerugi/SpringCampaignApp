@@ -1,5 +1,6 @@
 package com.example.mabaya.entities;
 
+import com.example.mabaya.consts.ValidationMsg;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import jakarta.persistence.*;
@@ -20,17 +21,18 @@ public class Campaign {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Size(min = 2, max = 25, message = ValidationMsg.SIZE_CONSTRAINT_NAME_2_25)
+    @NotNull(message = ValidationMsg.NULL_NAME)
     @Column(name = "name", nullable = false)
-    @Size(min = 2, max = 25, message = "Name should be between 2-25 chars")
     private String name;
 
     @Column(name = "start_date", nullable = false)
     @Temporal(TemporalType.DATE)
-    @NotNull(message = "Start date cannot be null")
+    @NotNull(message = ValidationMsg.NULL_START_DATE)
     private LocalDate startDate;
 
     @Column(name = "bid", nullable = false)
-    @DecimalMin(value = "0.0", inclusive = true)
+    @DecimalMin(value = "0.0", inclusive = true, message = ValidationMsg.NUM_BID_NEGATIVE)
     private double bid;
 
     @Column(name = "active", columnDefinition = "boolean  default true")
