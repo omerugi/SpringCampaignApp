@@ -22,9 +22,10 @@ public class ProductController {
 
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody @Valid ProductDTO productDTO) {
+    public ResponseEntity<Product> upsert(@RequestBody @Valid ProductDTO productDTO) {
+        boolean doesExist = productService.doesExistBySerialNumber(productDTO.getProductSerialNumber());
         Product productFromDB = productService.upsert(productDTO);
-        return new ResponseEntity<>(productFromDB, productFromDB.getProductSerialNumber().equals(productDTO.getProductSerialNumber()) ?
+        return new ResponseEntity<>(productFromDB, doesExist ?
                 HttpStatus.OK :
                 HttpStatus.CREATED);
     }

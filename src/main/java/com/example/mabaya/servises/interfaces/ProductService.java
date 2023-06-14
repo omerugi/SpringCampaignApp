@@ -18,4 +18,6 @@ public interface ProductService {
     Optional<Product> getByTitle(String title);
 
     void deleteBySerialNumber(String serialNumber);
+
+    boolean doesExistBySerialNumber(String serialNumber);
 }

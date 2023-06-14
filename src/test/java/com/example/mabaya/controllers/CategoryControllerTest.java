@@ -1,15 +1,11 @@
 package com.example.mabaya.controllers;
 
 import com.example.mabaya.consts.ValidationMsg;
-import com.example.mabaya.dto.CampaignDTO;
 import com.example.mabaya.dto.CategoryDTO;
 import com.example.mabaya.entities.Category;
 import com.example.mabaya.exeption.AppValidationException;
 import com.example.mabaya.servises.interfaces.CategoryService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

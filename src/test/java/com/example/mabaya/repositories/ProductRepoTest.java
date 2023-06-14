@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -88,7 +87,7 @@ class ProductRepoTest {
 
     @Test
     void TestSaveProductSuccesses() {
-        Product product = getProduct("test","11test");
+        Product product = getProduct("Test","11Test");
         productRepo.saveAndFlush(product);
         Product foundProduct = entityManager.find(Product.class, product.getProductSerialNumber());
         assertEquals(product.getProductSerialNumber(), foundProduct.getProductSerialNumber());
@@ -113,7 +112,7 @@ class ProductRepoTest {
 
     @Test
     void TestSaveProductLongTitle() {
-        Product productLongTitle = getProduct("this is a really long product title to test","s-12");
+        Product productLongTitle = getProduct("this is a really long product title to Test","s-12");
         ConstraintViolationException thrownLongTitle = assertThrows(
                 ConstraintViolationException.class,
                 () -> productRepo.saveAndFlush(productLongTitle));
@@ -132,7 +131,7 @@ class ProductRepoTest {
 
     @Test
     void TestSaveProductNegativePrice() {
-        Product productNegativePrice = getProduct("test","s11");
+        Product productNegativePrice = getProduct("Test","s11");
         productNegativePrice.setPrice(-100.0);
         ConstraintViolationException thrown = assertThrows(
                 ConstraintViolationException.class,
@@ -142,7 +141,7 @@ class ProductRepoTest {
 
     @Test
     void TestSaveProductNullSerialNumber() {
-        Product productNullSerialNumber = getProduct("test",null);
+        Product productNullSerialNumber = getProduct("Test",null);
         assertThrows(JpaSystemException.class, () -> productRepo.saveAndFlush(productNullSerialNumber));
     }
 
@@ -172,16 +171,30 @@ class ProductRepoTest {
     }
 
     @Test
-    void testFindProductByTitleFound(){
+    void TestFindProductByTitleFound(){
         Optional<Product> foundProduct = productRepo.findByTitle("p1");
         assertTrue(foundProduct.isPresent());
         assertEquals("p1",foundProduct.get().getTitle());
     }
 
     @Test
-    void testFindProductByTitleNotFound(){
+    void TestFindProductByTitleNotFound(){
         Optional<Product> foundProduct = productRepo.findByTitle("Made up product title that is not in DB");
         assertFalse(foundProduct.isPresent());
+    }
+
+    @Test
+    void TestDoesExistTrue(){
+        assertTrue(productRepo.existsById("1"));
+        assertTrue(productRepo.existsById("2"));
+        assertTrue(productRepo.existsById("3"));
+    }
+
+    @Test
+    void TestDoesExistFalse(){
+        assertFalse(productRepo.existsById("11"));
+        assertFalse(productRepo.existsById("22"));
+        assertFalse(productRepo.existsById("33"));
     }
 
 }

@@ -11,13 +11,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
-import java.util.Collections;
 import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,7 +26,7 @@ class GlobalExceptionHandlerTest {
     private GlobalExceptionHandler globalExceptionHandler;
 
     @Test
-    void TesthandleAppValidationException() {
+    void TestHandleAppValidationException() {
         AppValidationException exception = new AppValidationException("Validation exception");
         ResponseEntity<Object> response = globalExceptionHandler.handleAppValidationException(exception);
 
@@ -41,7 +36,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void TesthandleMethodArgumentExceptions() {
+    void TestHandleMethodArgumentExceptions() {
         MethodParameter methodParameter = mock(MethodParameter.class);
         BindingResult bindingResult = mock(BindingResult.class);
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(methodParameter,bindingResult);
@@ -52,7 +47,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void TesthandleRunTimeException() {
+    void TestHandleRunTimeException() {
         RuntimeException exception = new RuntimeException("Runtime exception");
         ResponseEntity<Object> response = globalExceptionHandler.handleRunTimeException(exception);
 
@@ -62,7 +57,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void TesthandleConstraintViolationException() {
+    void TestHandleConstraintViolationException() {
         ConstraintViolationException exception = new ConstraintViolationException("Constraint violation exception", new HashSet<>());
         ResponseEntity<Object> response = globalExceptionHandler.handleConstraintViolationException(exception);
 
@@ -72,7 +67,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void TesthandleDataIntegrityViolationException() {
+    void TestHandleDataIntegrityViolationException() {
         RuntimeException cause = new RuntimeException(new RuntimeException("Data integrity violation exception"));
         DataIntegrityViolationException exception = new DataIntegrityViolationException("Top level exception", cause);
         ResponseEntity<Object> response = globalExceptionHandler.handleDataIntegrityViolationException(exception);
@@ -83,12 +78,12 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void TesthandleMethodArgumentTypeMismatchException() {
+    void TestHandleMethodArgumentTypeMismatchException() {
         // TODO: need to create this test
     }
 
     @Test
-    void TesthandleHttpMessageNotReadableException() {
+    void TestHandleHttpMessageNotReadableException() {
         // TODO: need to create this test
     }
 

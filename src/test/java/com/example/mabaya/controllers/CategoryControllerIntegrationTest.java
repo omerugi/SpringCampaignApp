@@ -3,10 +3,11 @@ package com.example.mabaya.controllers;
 import com.example.mabaya.consts.ValidationMsg;
 import com.example.mabaya.dto.CategoryDTO;
 import com.example.mabaya.entities.Category;
+import com.example.mabaya.entities.Product;
 import com.example.mabaya.exeption.AppValidationException;
 import com.example.mabaya.repositories.CategoryRepo;
+import com.example.mabaya.repositories.ProductRepo;
 import com.example.mabaya.servises.interfaces.CategoryService;
-import com.github.javafaker.App;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,17 +39,24 @@ class CategoryControllerIntegrationTest {
     @Autowired
     private CategoryRepo categoryRepo;
 
+    @Autowired
+    private ProductRepo productRepo;
+
     @Test
-    void TestCreateCategory() throws Exception {
+    void TestCreateCategory() {
         String name = "test";
         CategoryDTO categoryDTO = new CategoryDTO(name);
 
         ResponseEntity<Category> categoryResponseEntity = categoryController.upsert(categoryDTO);
         assertNotNull(categoryResponseEntity.getBody());
-        assertEquals(HttpStatus.CREATED,categoryResponseEntity.getStatusCode());
-
+        assertEquals(HttpStatus.CREATED, categoryResponseEntity.getStatusCode());
         Category newCategory = categoryResponseEntity.getBody();
         assertEquals(categoryDTO.getName(), newCategory.getName());
+
+        Optional<Category> optionalCategory = categoryRepo.findByName(categoryDTO.getName());
+        assertTrue(optionalCategory.isPresent());
+        Category categoryFromDB = optionalCategory.get();
+        assertEquals(categoryFromDB.getName(), categoryDTO.getName());
     }
 
     @Test
@@ -60,56 +70,61 @@ class CategoryControllerIntegrationTest {
         String name = "test-update";
         CategoryDTO categoryDTO = new CategoryDTO(id, name);
 
+        assertEquals(categoryDTO.getId(), categoryB4.getId());
+        assertNotEquals(categoryDTO.getName(), categoryB4.getName());
+
         ResponseEntity<Category> categoryResponseEntity = categoryController.upsert(categoryDTO);
         assertNotNull(categoryResponseEntity.getBody());
-        assertEquals(HttpStatus.OK,categoryResponseEntity.getStatusCode());
+        assertEquals(HttpStatus.OK, categoryResponseEntity.getStatusCode());
         assertEquals(categoryDTO.getName(), categoryB4.getName());
+
+        Optional<Category> optionalCategory = categoryRepo.findById(categoryDTO.getId());
+        assertTrue(optionalCategory.isPresent());
+        Category categoryFromDB = optionalCategory.get();
+        assertEquals(categoryDTO.getId(), categoryFromDB.getId());
+        assertEquals(categoryDTO.getName(), categoryFromDB.getName());
     }
 
     @Test
-    void TestGetById() throws Exception{
+    void TestGetById() {
         ResponseEntity<Category> categoryResponseEntity = categoryController.getById(111L);
         assertNotNull(categoryResponseEntity.getBody());
-        assertEquals(HttpStatus.OK,categoryResponseEntity.getStatusCode());
-        assertEquals("aa",categoryResponseEntity.getBody().getName());
+        assertEquals(HttpStatus.OK, categoryResponseEntity.getStatusCode());
+        assertEquals(111L,categoryResponseEntity.getBody().getId());
+        assertEquals("aa", categoryResponseEntity.getBody().getName());
     }
 
     @Test
-    void TestGetByIdNotExists() throws Exception{
-        try{
-            categoryController.getById(111L);
-        }catch (AppValidationException e){
-            assertEquals(ValidationMsg.NOT_FOUND_ID,e.getMessage());
-        }
+    void TestGetByIdNotExists() {
+        ResponseEntity<Category> categoryResponseEntity = categoryController.getById(6L);
+        assertNull(categoryResponseEntity.getBody());
+        assertEquals(HttpStatus.NOT_FOUND, categoryResponseEntity.getStatusCode());
     }
 
     @Test
     @Transactional
-    void TestDeleteById(){
+    void TestDeleteById() {
         Optional<Category> optionalCategoryB4 = categoryRepo.findById(444L);
         assertTrue(optionalCategoryB4.isPresent());
+        Set<String> productsPsn = optionalCategoryB4.get().getProducts().stream().map(Product::getProductSerialNumber).collect(Collectors.toSet());
+
         categoryController.deleteById(444L);
         Optional<Category> optionalCategory = categoryRepo.findById(444L);
         assertFalse(optionalCategory.isPresent());
+        assertEquals(productsPsn.size(),productRepo.findAllById(productsPsn).size());
     }
 
     @Test
-    void TestDeleteIdNotInDB() throws Exception {
-        try{
-            categoryController.deleteById(666L);
-        }catch (AppValidationException e){
-            assertEquals("666 "+ValidationMsg.NOT_FOUND_ID,e.getMessage());
-        }
+    void TestDeleteIdNotInDB() {
+        Exception exception = assertThrows(AppValidationException.class, () -> categoryController.deleteById(666L));
+        assertTrue(exception.getMessage().contains(ValidationMsg.NOT_FOUND_ID));
     }
 
     @Test
     @Transactional
     void TestDeleteAttachedProducts() {
-        try{
-            categoryController.deleteById(111L);
-        }catch (AppValidationException e){
-            assertTrue(e.getMessage().contains(ValidationMsg.CANNOT_DELETE_CATEGORY_ATTACHED_PRODUCTS));
-        }
+        Exception exception = assertThrows(AppValidationException.class, () -> categoryController.deleteById(111L));
+        assertTrue(exception.getMessage().contains(ValidationMsg.CANNOT_DELETE_CATEGORY_ATTACHED_PRODUCTS));
     }
 
 }

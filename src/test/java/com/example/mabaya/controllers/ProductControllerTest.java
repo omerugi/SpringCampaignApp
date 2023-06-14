@@ -1,16 +1,13 @@
 package com.example.mabaya.controllers;
 
 import com.example.mabaya.consts.ValidationMsg;
-import com.example.mabaya.dto.CategoryDTO;
 import com.example.mabaya.dto.ProductDTO;
 import com.example.mabaya.dto.projections.TopProductProjection;
 import com.example.mabaya.dto.projections.TopProductProjectionImpl;
 import com.example.mabaya.entities.Category;
 import com.example.mabaya.entities.Product;
 import com.example.mabaya.exeption.AppValidationException;
-import com.example.mabaya.servises.interfaces.CategoryService;
 import com.example.mabaya.servises.interfaces.ProductService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +96,7 @@ public class ProductControllerTest {
         mockMvc.perform(post("/product")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productDTO)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.productSerialNumber", is(psn)))
                 .andExpect(jsonPath("$.title", is(title)))
                 .andExpect(jsonPath("$.category.id", is(id.intValue())))
@@ -116,7 +113,6 @@ public class ProductControllerTest {
 
         when(productService.upsert(any(ProductDTO.class))).thenThrow(new AppValidationException(ValidationMsg.NOT_FOUND_CATEGORY_NAME));
 
-
         mockMvc.perform(post("/product")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productDTO)))
@@ -130,7 +126,6 @@ public class ProductControllerTest {
 
         ProductDTO productDTO = new ProductDTO();
         productDTO.setTitle(title);
-
 
         mockMvc.perform(post("/product")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -147,8 +142,6 @@ public class ProductControllerTest {
         productDTO.setTitle(title);
         productDTO.setCategoryName("cat-name");
         productDTO.setProductSerialNumber("1----");
-
-
 
         mockMvc.perform(post("/product")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -171,8 +164,6 @@ public class ProductControllerTest {
         productDTO.setTitle("1");
         productDTO.setCategoryName("1");
         productDTO.setProductSerialNumber("1");
-
-
 
         mockMvc.perform(post("/product")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -202,8 +193,6 @@ public class ProductControllerTest {
         ProductDTO productDTO = new ProductDTO();
         productDTO.setCategoryName("1");
         productDTO.setProductSerialNumber("1");
-
-
 
         mockMvc.perform(post("/product")
                         .contentType(MediaType.APPLICATION_JSON)

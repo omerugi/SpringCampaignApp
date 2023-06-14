@@ -9,13 +9,10 @@ import com.example.mabaya.exeption.AppValidationException;
 import com.example.mabaya.repositories.ProductRepo;
 import com.example.mabaya.servises.impls.ProductServiceImpl;
 import com.example.mabaya.servises.interfaces.CategoryService;
-import com.example.mabaya.servises.interfaces.ProductService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.*;
 
@@ -38,15 +35,15 @@ class ProductServiceImplTest {
     @Test
     void TestUpsert() {
         ProductDTO productDTO = new ProductDTO();
-        productDTO.setCategoryName("Electronics");
+        productDTO.setCategoryName("cat-test");
 
         Category category = new Category();
-        category.setName("Electronics");
+        category.setName("cat-test");
 
         Product product = new Product();
         product.setCategory(category);
 
-        when(categoryService.getByName(anyString())).thenReturn(Optional.of(category));
+        when(categoryService.getByName("cat-test")).thenReturn(Optional.of(category));
         when(productRepo.save(any(Product.class))).thenReturn(product);
 
         Product result = productService.upsert(productDTO);
@@ -57,7 +54,8 @@ class ProductServiceImplTest {
     @Test
     void TestUpsertInvalidCategory(){
         ProductDTO productDTO = new ProductDTO();
-        when(categoryService.getByName(anyString())).thenReturn(Optional.empty());
+        productDTO.setCategoryName("cat-test");
+        when(categoryService.getByName("cat-test")).thenReturn(Optional.empty());
         Exception exception = assertThrows(AppValidationException.class, () ->
                 productService.upsert(productDTO));
         assertTrue(exception.getMessage().contains(ValidationMsg.NOT_FOUND_CATEGORY_NAME));
@@ -66,17 +64,17 @@ class ProductServiceImplTest {
     @Test
     void TestGetHighestBiddedProduct() {
         TopProductProjection projection = mock(TopProductProjection.class);
-        when(categoryService.getByName(any(String.class))).thenReturn(Optional.of(new Category()));
-        when(productRepo.findTopPromotedProduct(anyString())).thenReturn(Optional.of(projection));
+        when(categoryService.getByName("cat-test")).thenReturn(Optional.of(new Category()));
+        when(productRepo.findTopPromotedProduct("cat-test")).thenReturn(Optional.of(projection));
 
-        Optional<TopProductProjection> result = productService.getHighestBiddedProductByCategorty("Electronics");
+        Optional<TopProductProjection> result = productService.getHighestBiddedProductByCategorty("cat-test");
         assertTrue(result.isPresent());
         assertEquals(projection, result.get());
     }
 
     @Test
     void TestGetHighestBiddedProductInvalidCategory() {
-        when(categoryService.getByid(anyLong())).thenReturn(Optional.empty());
+        when(categoryService.getByName("bad-cat")).thenReturn(Optional.empty());
         Exception exception = assertThrows(AppValidationException.class, () ->
                 productService.getHighestBiddedProductByCategorty("bad-cat"));
         assertTrue(exception.getMessage().contains(ValidationMsg.NOT_FOUND_CATEGORY_NAME));
@@ -84,13 +82,13 @@ class ProductServiceImplTest {
 
     @Test
     void TestGetProductsByValidSerialNumbers() {
-        Set<String> serialNumbers = new HashSet<>(Arrays.asList("SN1", "SN2"));
+        Set<String> serialNumbers = new HashSet<>(Arrays.asList("111", "222"));
 
         Product product1 = new Product();
-        product1.setProductSerialNumber("SN1");
+        product1.setProductSerialNumber("111");
 
         Product product2 = new Product();
-        product2.setProductSerialNumber("SN2");
+        product2.setProductSerialNumber("222");
 
         when(productRepo.findAllById(any())).thenReturn(Arrays.asList(product1, product2));
 
@@ -101,19 +99,36 @@ class ProductServiceImplTest {
 
     @Test
     void TestGetProductsByFakeSerialNumbers() {
-        Set<String> serialNumbers = new HashSet<>(Arrays.asList("SN1", "SN2"));
+        Set<String> serialNumbers = new HashSet<>(Arrays.asList("111", "222"));
 
         Product product1 = new Product();
-        product1.setProductSerialNumber("SN1");
+        product1.setProductSerialNumber("111");
 
         Product product2 = new Product();
-        product2.setProductSerialNumber("SN2");
+        product2.setProductSerialNumber("222");
 
-        when(productRepo.findAllById(any())).thenReturn(List.of(product1));
+        when(productRepo.findAllById(Collections.singleton(anyString()))).thenReturn(List.of(product1));
 
         Exception exception = assertThrows(AppValidationException.class, () ->
                 productService.getProductsBySerialNumbers(serialNumbers));
         assertTrue(exception.getMessage().contains(ValidationMsg.NOT_FOUND_PSN));
     }
 
+    @Test
+    void TestGetDoesExistBySerialNumberTrue(){
+        when(productRepo.existsById(anyString())).thenReturn(true);
+        assertTrue(productService.doesExistBySerialNumber("11"));
+        assertTrue(productService.doesExistBySerialNumber("113"));
+        assertTrue(productService.doesExistBySerialNumber("1133"));
+        assertTrue(productService.doesExistBySerialNumber("11333"));
+    }
+
+    @Test
+    void TestGetDoesExistBySerialNumberFalse(){
+        when(productRepo.existsById(anyString())).thenReturn(false);
+        assertFalse(productService.doesExistBySerialNumber("11"));
+        assertFalse(productService.doesExistBySerialNumber("113"));
+        assertFalse(productService.doesExistBySerialNumber("1133"));
+        assertFalse(productService.doesExistBySerialNumber("11333"));
+    }
 }

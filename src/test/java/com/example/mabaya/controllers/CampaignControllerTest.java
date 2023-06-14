@@ -98,23 +98,43 @@ class CampaignControllerTest {
 
     @Test
     void TestUpdateCampaign()throws Exception{
+        Category category = new Category();
+        category.setId(11L);
+        category.setName("cat");
+
+        Product product1 = new Product();
+        product1.setProductSerialNumber("1");
+        product1.setTitle("1");
+        product1.setCategory(category);
+
+        LocalDate date = LocalDate.now();
         CampaignDTO campaignDTO = new CampaignDTO();
         campaignDTO.setId(1L);
         campaignDTO.setBid(500);
         campaignDTO.setName("test-camp");
-        campaignDTO.setStartDate(LocalDate.now());
-        campaignDTO.addProductSerialNumber("111s");
+        campaignDTO.setStartDate(date);
+        campaignDTO.addProductSerialNumber(product1.getProductSerialNumber());
 
         Campaign campaign = new Campaign();
         campaign.setId(1L);
+        campaign.setName("test-camp");
+        campaign.setBid(500);
+        campaign.setStartDate(date);
+        campaign.addProduct(product1);
 
         when(campaignService.upsert(any(CampaignDTO.class))).thenReturn(campaign);
 
         mockMvc.perform(post("/campaign")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(campaignDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(1)));
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("test-camp")))
+                .andExpect(jsonPath("$.bid", is(500.0)))
+                .andExpect(jsonPath("$.startDate", is(date.toString())))
+                .andExpect(jsonPath("$.products[0].title", is("1")))
+                .andExpect(jsonPath("$.products[0].productSerialNumber", is("1")))
+                .andExpect(jsonPath("$.products[0].category.id", is(11)))
+                .andExpect(jsonPath("$.products[0].category.name", is("cat")));
     }
 
     @Test
@@ -252,14 +272,41 @@ class CampaignControllerTest {
 
     @Test
     void TestGetById() throws Exception {
-        Campaign campaign = new Campaign();
-        campaign.setId(1L);
-        when(campaignService.getById(1L)).thenReturn(Optional.of(campaign));
+        Category category = new Category();
+        category.setId(11L);
+        category.setName("cat");
 
-        mockMvc.perform(get("/campaign/1")
+        Product product1 = new Product();
+        product1.setProductSerialNumber("1");
+        product1.setTitle("1");
+        product1.setCategory(category);
+
+        LocalDate date = LocalDate.now();
+        CampaignDTO campaignDTO = new CampaignDTO();
+        campaignDTO.setBid(500);
+        campaignDTO.setName("test-camp");
+        campaignDTO.setStartDate(date);
+        campaignDTO.addProductSerialNumber(product1.getProductSerialNumber());
+
+        Campaign campaign = new Campaign();
+        campaign.setId(2L);
+        campaign.setName("test-camp");
+        campaign.setBid(500);
+        campaign.setStartDate(date);
+        campaign.addProduct(product1);
+        when(campaignService.getById(2L)).thenReturn(Optional.of(campaign));
+
+        mockMvc.perform(get("/campaign/2")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(1)));
+                .andExpect(jsonPath("$.id", is(2)))
+                .andExpect(jsonPath("$.name", is("test-camp")))
+                .andExpect(jsonPath("$.bid", is(500.0)))
+                .andExpect(jsonPath("$.startDate", is(date.toString())))
+                .andExpect(jsonPath("$.products[0].title", is("1")))
+                .andExpect(jsonPath("$.products[0].productSerialNumber", is("1")))
+                .andExpect(jsonPath("$.products[0].category.id", is(11)))
+                .andExpect(jsonPath("$.products[0].category.name", is("cat")));
     }
 
     @Test
