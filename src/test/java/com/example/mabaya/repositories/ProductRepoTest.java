@@ -146,6 +146,19 @@ class ProductRepoTest {
     }
 
     @Test
+    void TestSaveProductShortSerialNumber() {
+        Product productNullSerialNumber = getProduct("c",null);
+        assertThrows(JpaSystemException.class, () -> productRepo.saveAndFlush(productNullSerialNumber));
+    }
+
+    @Test
+    void TestSaveProductLongSerialNumber() {
+        Product productNullSerialNumber = getProduct("1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",null);
+        assertThrows(JpaSystemException.class, () -> productRepo.saveAndFlush(productNullSerialNumber));
+    }
+
+
+    @Test
     void TestSaveProductNullCategory() {
         Product productNullCategory = new Product();
         productNullCategory.setTitle("Valid Title");

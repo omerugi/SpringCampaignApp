@@ -21,8 +21,9 @@ public class ValidationMsg {
     // Numeric field msgs:
     public static final String NUM_BID_NEGATIVE = "Bid cannot be negative";
     public static final String NUM_PRICE_NEGATIVE = "Price cannot be negative";
+
     // Invalid field msgs:
-    public static final String INVALID_PSN = "Product Serial Number should be at lease size 1 and contain only letters and digits";
+    public static final String INVALID_PSN = "Product Serial Number should be at size 1-255 and contain only letters and digits";
 
     // Delete msgs:
     public static final String CANNOT_DELETE_CATEGORY_ATTACHED_PRODUCTS = "Cannot delete Categories, that products are attached to";

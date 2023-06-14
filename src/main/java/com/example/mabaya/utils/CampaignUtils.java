@@ -17,6 +17,7 @@ public class CampaignUtils {
         newCamp.setStartDate(campaignDTO.getStartDate());
         newCamp.setBid(campaignDTO.getBid());
         newCamp.setProducts(products);
+        newCamp.setActive(campaignDTO.isActive());
         return newCamp;
     }
 
@@ -28,6 +29,7 @@ public class CampaignUtils {
         campaignDTO.setBid(campaignDTO.getBid());
         campaignDTO.setStartDate(campaign.getStartDate());
         campaignDTO.setProductSerialNumbers(campaign.getProducts().stream().map(Product::getProductSerialNumber).collect(Collectors.toSet()));
+        campaignDTO.setActive(campaign.isActive());
         return campaignDTO;
     }
 }

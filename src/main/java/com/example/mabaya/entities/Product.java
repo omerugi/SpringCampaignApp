@@ -20,7 +20,7 @@ public class Product {
 
     @Id
     @Column(name = "product_serial_number", nullable = false)
-    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = ValidationMsg.INVALID_PSN)
+    @Pattern(regexp = "^[a-zA-Z0-9]{1,255}$", message = ValidationMsg.INVALID_PSN)
     private String productSerialNumber;
 
     @Column(name = "title", nullable = false, unique = true)

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductDTO {
-    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = ValidationMsg.INVALID_PSN)
+    @Pattern(regexp = "^[a-zA-Z0-9]{1,255}$", message = ValidationMsg.INVALID_PSN)
     private String productSerialNumber;
 
     @NotNull(message = ValidationMsg.NULL_TITLE)

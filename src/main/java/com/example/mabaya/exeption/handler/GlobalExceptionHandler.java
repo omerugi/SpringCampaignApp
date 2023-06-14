@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -82,6 +83,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException e){
+        AppException appException = new AppException(
+                e.getCause().getCause().getMessage(),
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                ZonedDateTime.now()
+        );
+        return new ResponseEntity<>(appException, appException.getHttpStatus());
+    }
+
+    @ExceptionHandler(JpaSystemException.class)
+    public ResponseEntity<Object> handleJpaSystemException(JpaSystemException e){
         AppException appException = new AppException(
                 e.getCause().getCause().getMessage(),
                 HttpStatus.UNPROCESSABLE_ENTITY,

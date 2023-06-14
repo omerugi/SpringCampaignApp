@@ -56,27 +56,41 @@ class CampaignServiceImplTest {
     }
 
     @Test
-    void TestCreateCampaignSuccesses(){
+    void TestUpsertSuccesses(){
         Campaign savedCamp = getNewCampaign("test-camp");
-        Set<Product> productOfSavedCamp = new HashSet<>(List.of(getNewProduct("test-prod", "test-prod-1")));
+        Set<Product> productOfSavedCamp = new HashSet<>(List.of(getNewProduct("testprod", "1111111")));
         savedCamp.setProducts(productOfSavedCamp);
         CampaignDTO campaignToSaveDTO = CampaignUtils.getCampaignDTOFromCampaign(savedCamp);
         when(campaignRepo.save(any())).thenReturn(savedCamp);
         when(productService.getProductsBySerialNumbers(any())).thenReturn(productOfSavedCamp);
-
         Campaign afterSaveCamp = campaignService.upsert(campaignToSaveDTO);
-
         assertSame(afterSaveCamp,savedCamp);
     }
 
     @Test
-    void TestCreateCampaignWithEmptyProductSet(){
+    void TestUpsertEmptyProductSet(){
         Campaign savedCamp = getNewCampaign("test-camp");
         CampaignDTO campaignToSaveDTO = CampaignUtils.getCampaignDTOFromCampaign(savedCamp);
         Exception exception = assertThrows(AppValidationException.class,
                 ()->campaignService.upsert(campaignToSaveDTO));
         assertTrue(exception.getMessage().contains(ValidationMsg.EMPTY_PSN));
     }
+
+    @Test
+    void TestUpsertWithPassStartDate(){
+        Campaign savedCamp = getNewCampaign("test-camp");
+        Set<Product> productOfSavedCamp = new HashSet<>(List.of(getNewProduct("testprod", "11111")));
+        savedCamp.setProducts(productOfSavedCamp);
+        CampaignDTO campaignToSaveDTO = CampaignUtils.getCampaignDTOFromCampaign(savedCamp);
+        campaignToSaveDTO.setStartDate(LocalDate.now().minusDays(11));
+        savedCamp.setActive(false);
+        when(campaignRepo.save(any())).thenReturn(savedCamp);
+        Campaign afterSaveCamp = campaignService.upsert(campaignToSaveDTO);
+        assertSame(afterSaveCamp,savedCamp);
+    }
+
+
+
 
 
 }

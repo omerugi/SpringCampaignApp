@@ -30,9 +30,9 @@ public class ProductController {
                 HttpStatus.CREATED);
     }
 
-    @GetMapping("/serveAd/{category}")
-    public ResponseEntity<TopProductProjection> serveAd(@PathVariable @NonNull String category) {
-        Optional<TopProductProjection> topProductProjection = productService.getHighestBiddedProductByCategorty(category);
+    @GetMapping("/serveAd/{categoryName}")
+    public ResponseEntity<TopProductProjection> serveAd(@PathVariable @NonNull String categoryName) {
+        Optional<TopProductProjection> topProductProjection = productService.getHighestBiddedProductByCategorty(categoryName);
         return topProductProjection.map(tpp -> new ResponseEntity<>(tpp, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }

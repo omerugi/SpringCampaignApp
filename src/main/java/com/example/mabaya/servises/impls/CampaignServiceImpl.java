@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,6 +31,8 @@ public class CampaignServiceImpl implements CampaignService {
     @Transactional
     @Override
     public Campaign upsert(CampaignDTO campaignDTO) {
+        if(campaignDTO.getStartDate().isBefore(LocalDate.now().minusDays(10)))
+            campaignDTO.setActive(false);
         Campaign campaign = createCampaignFromDTO(campaignDTO);
         return campaignRepo.save(campaign);
     }

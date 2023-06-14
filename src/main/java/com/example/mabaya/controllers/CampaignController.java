@@ -19,9 +19,6 @@ public class CampaignController {
     @Autowired
     private CampaignService campaignService;
 
-    @Autowired
-    private CampaignScheduler campaignScheduler;
-
     @PostMapping
     public ResponseEntity<Campaign> upsert(@RequestBody @Valid CampaignDTO campaignDTO){
         Campaign campaignFromDB = campaignService.upsert(campaignDTO);

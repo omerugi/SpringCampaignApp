@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
 @SpringBootTest
@@ -81,6 +81,39 @@ class CampaignControllerIntegrationTest {
 
     @Test
     @Transactional
+    void TestCreateNewCampaignWithPassStartDate() {
+        LocalDate date = LocalDate.now().minusDays(11);
+        CampaignDTO campaignDTO = new CampaignDTO();
+        campaignDTO.setBid(500);
+        campaignDTO.setName("test-camp");
+        campaignDTO.setStartDate(date);
+        campaignDTO.addProductSerialNumber("1");
+        campaignDTO.setActive(true);
+
+        ResponseEntity<Campaign> responseCampaign = campaignController.upsert(campaignDTO);
+        assertNotNull(responseCampaign.getBody());
+        assertEquals(HttpStatus.CREATED, responseCampaign.getStatusCode());
+        Campaign campaignSaved = responseCampaign.getBody();
+
+        assertEquals(campaignSaved.getBid(),campaignDTO.getBid());
+        assertEquals(campaignSaved.getName(),campaignDTO.getName());
+        assertEquals(campaignSaved.getStartDate(),campaignDTO.getStartDate());
+        assertNotNull(campaignSaved.getProducts().stream().filter(product -> Objects.equals(product.getProductSerialNumber()
+                , "1")).findFirst().orElse(null));
+        assertFalse(campaignSaved.isActive());
+
+        Optional<Campaign> opCampFromDB = campaignRepo.findById(responseCampaign.getBody().getId());
+        assertTrue(opCampFromDB.isPresent());
+        Campaign campaignFromDB = opCampFromDB.get();
+        assertEquals(campaignFromDB.getBid(),campaignDTO.getBid());
+        assertEquals(campaignFromDB.getName(),campaignDTO.getName());
+        assertNotNull(campaignFromDB.getProducts().stream().filter(product -> Objects.equals(product.getProductSerialNumber()
+                , "1")).findFirst().orElse(null));
+        assertFalse(campaignFromDB.isActive());
+    }
+
+    @Test
+    @Transactional
     void TestUpdateCampaign(){
         Optional<Campaign> opCampaignB4 = campaignRepo.findById(11L);
         assertTrue(opCampaignB4.isPresent());
@@ -120,6 +153,55 @@ class CampaignControllerIntegrationTest {
         assertNotNull(campaignFromDB.getProducts().stream().filter(product -> Objects.equals(product.getProductSerialNumber()
                 , "3")).findFirst().orElse(null));
     }
+
+    @Test
+    @Transactional
+    void TestUpdateCampaignWithPassStartDate(){
+        Optional<Campaign> opCampaignB4 = campaignRepo.findById(11L);
+        assertTrue(opCampaignB4.isPresent());
+        Campaign campaignB4 = opCampaignB4.get();
+        assertTrue(campaignB4.isActive());
+
+        LocalDate date = LocalDate.now().minusDays(11);
+        CampaignDTO campaignDTO = new CampaignDTO();
+        campaignDTO.setId(11L);
+        campaignDTO.setBid(200);
+        campaignDTO.setName("test-camp");
+        campaignDTO.setStartDate(date);
+        campaignDTO.addProductSerialNumber("3");
+        campaignDTO.setActive(true);
+
+        assertEquals(campaignB4.getId(),campaignDTO.getId());
+        assertNotEquals(campaignB4.getBid(),campaignDTO.getBid());
+        assertNotEquals(campaignB4.getName(),campaignDTO.getName());
+        assertNull(campaignB4.getProducts().stream().filter(product -> Objects.equals(product.getProductSerialNumber()
+                , "3")).findFirst().orElse(null));
+
+
+        ResponseEntity<Campaign> responseCampaign = campaignController.upsert(campaignDTO);
+        assertNotNull(responseCampaign.getBody());
+        assertEquals(HttpStatus.OK, responseCampaign.getStatusCode());
+        Campaign campaignSaved = responseCampaign.getBody();
+
+        assertEquals(campaignSaved.getBid(),campaignDTO.getBid());
+        assertEquals(campaignSaved.getName(),campaignDTO.getName());
+        assertEquals(campaignSaved.getStartDate(),date);
+        assertNotNull(campaignSaved.getProducts().stream().filter(product -> Objects.equals(product.getProductSerialNumber()
+                , "3")).findFirst().orElse(null));
+        assertFalse(campaignSaved.isActive());
+
+        Optional<Campaign> opCampFromDB = campaignRepo.findById(campaignDTO.getId());
+        assertTrue(opCampFromDB.isPresent());
+
+        Campaign campaignFromDB = opCampFromDB.get();
+        assertEquals(campaignFromDB.getBid(),campaignDTO.getBid());
+        assertEquals(campaignFromDB.getName(),campaignDTO.getName());
+        assertEquals(campaignFromDB.getStartDate(),campaignDTO.getStartDate());
+        assertNotNull(campaignFromDB.getProducts().stream().filter(product -> Objects.equals(product.getProductSerialNumber()
+                , "3")).findFirst().orElse(null));
+        assertFalse(campaignFromDB.isActive());
+    }
+
 
 
     @Test

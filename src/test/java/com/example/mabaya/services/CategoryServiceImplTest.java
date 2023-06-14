@@ -80,7 +80,6 @@ class CategoryServiceImplTest {
         when(categoryRepo.findById(id)).thenReturn(Optional.of(category));
 
         Exception exception = assertThrows(AppValidationException.class, () -> categoryService.deleteById(id));
-
         assertTrue(exception.getMessage().contains(ValidationMsg.CANNOT_DELETE_CATEGORY_ATTACHED_PRODUCTS+" 111"));
     }
 }

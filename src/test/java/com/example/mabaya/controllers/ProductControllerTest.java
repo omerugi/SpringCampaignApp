@@ -156,6 +156,14 @@ public class ProductControllerTest {
                         .content(objectMapper.writeValueAsString(productDTO)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors[0].defaultMessage", is(ValidationMsg.INVALID_PSN)));
+
+        productDTO.setProductSerialNumber("1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+
+        mockMvc.perform(post("/product")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(productDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].defaultMessage", is(ValidationMsg.INVALID_PSN)));
     }
 
     @Test
