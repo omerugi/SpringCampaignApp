@@ -12,7 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
 
-@SpringBootTest
+@SpringBootTest(properties = {"app.scheduler.time=0/01 * * * * ?"})
 class CampaignSchedulerTest {
 
     @Autowired
