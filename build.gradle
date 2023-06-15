@@ -49,8 +49,16 @@ test {
     }
 }
 
+// Add these START
+bootJar {
+    archiveClassifier.set('boot')
+}
+
 jar {
-    manifest {
-        attributes 'Main-Class': 'com.example.mabaya.MabayaApplication'
-    }
+    archiveClassifier.set('')
+}
+// Add these END
+
+test {
+    useJUnitPlatform()
 }
