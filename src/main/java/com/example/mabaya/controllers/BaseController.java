@@ -12,14 +12,22 @@ public class BaseController {
     @GetMapping
     public String helloWorld(){
         return "<html><head>\n" +
-                "  <title>Base URL</title>\n" +
+                "  <title>Campaign Project</title>\n" +
                 "  <style>\n" +
-                "body {font-family: Arial, sans-serif;}\n"+
+                "body {font-family: Arial, sans-serif; " +
+                "            margin: 0;\n" +
+                "            height: 100vh;\n" +
+                "            display: flex; \n" +
+                "            flex-direction: column;\n" +
+                "            justify-content: start;\n" +
+                "            align-items: center;\n" +
+                "            text-align: center;}\n"+
                 "    .symbol-container {\n" +
                 "      display: flex;\n" +
                 "      flex-direction: row;\n" +
                 "      justify-content: center;\n" +
                 "      align-items: center;\n" +
+                "      text-align: center;\n" +
                 "      gap: 20px;\n" +
                 "      margin-top: 20px;\n" +
                 "    }\n" +
@@ -32,8 +40,8 @@ public class BaseController {
                 "  </style>\n" +
                 "</head>\n" +
                 "<body>\n" +
-                "  <h1>Base URL</h1>\n" +
-                "  \n" +
+                "  <h1>Campaign Project</h1>\n" +
+                "  <h2>Created by: Omer Rugi </h2>\n" +
                 "  <div class=\"symbol-container\">\n" +
                 "    <div class=\"symbol\">\n" +
                 "      <a href=\"https://github.com/omerugi/SpringCampaignApp\">\n" +
