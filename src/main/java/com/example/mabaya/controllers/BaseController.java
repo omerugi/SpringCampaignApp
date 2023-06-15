@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.*;
 public class BaseController {
     @GetMapping
     public String helloWorld(){
-        return "This is the the url for more details - https://github.com/omerugi/SpringCampaignApp";
+        return "This is the base url for more details - https://github.com/omerugi/SpringCampaignApp";
     }
 }
