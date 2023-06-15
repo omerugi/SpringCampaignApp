@@ -66,7 +66,7 @@ Simple demo - [Heroku campaign app](https://campaign-app-omerugi-55b76c613019.he
   * Product:
     * **POST** ```.../product``` - receives as a payload a valid productDTO to save/update, save without id in the payload update with.
       * Note: need only the category and not the whole object.
-    * * **GET** ```.../product``` - get all the products.
+    * **GET** ```.../product``` - get all the products.
     * **GET** ```.../product/{serialNumber}``` - receives a serialNumber as a path var and return the product with that serialNumber if it was found.
     * **DELET** ```.../product/{serialNumber}``` - receives an serialNumber as a path var and delete it from the DB without deleting campaigns.
     * **GET** ```.../product/serveAd/{category}``` - receives a category name and return the product with the highest bid from that category, if there is non, will return from another.
