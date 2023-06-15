@@ -12,6 +12,7 @@ Simple demo - [Heroku campaign app](https://campaign-app-omerugi-55b76c613019.he
   Also, campaigns have an "expiration date" and after 10 days they become inactive using the scheduler in the app that will run every day to update.
   
 ### Assumptions
+  * All size constratints on fileds are arbitrary just for the idea. 
   * Products are inserted with their own serial number that is manually, as there can be many product with different serial number that are not platform related.
   * When new product is created only need the category name and not the whole object.
   * When getting product the json will be without the campaigns related to it.
@@ -43,7 +44,7 @@ Simple demo - [Heroku campaign app](https://campaign-app-omerugi-55b76c613019.he
     * name - a unique non-null string that and limited to be at size 2-25.
     * products - a one-to-many relation with product (several products can have the same category).
   * Product - represent product that the seller is adding to the system.
-    * product serial number - a unique user generated string that can be a mix of numbers and letter and limited to be at size 2-25.
+    * product serial number - a unique user generated string that can be a mix of numbers and letter and limited to be at size 2-255.
     * title - a unique non-null string that and limited to be at size 2-25.
     * price - a non negative double.
     * active - a boolean with default as true.
