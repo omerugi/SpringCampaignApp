@@ -20,13 +20,15 @@ Simple demo - [Heroku campaign app](https://campaign-app-omerugi-55b76c613019.he
   * When a campaign is created only need the product serial number and not the whole object.
   * Category was crated as an entity as it seems more appropriate.
   * Category cannot be deleted if it's attached to a product. (Should migrate the data before deleting).
-
+  
 # Project Structure
   Each one of the entities has a controller, service, and repo as part of the design and also a DTO with constraints for API validation + projection class for custom DB response for serveAd call.
   
   There are few util class for general class based functions and a const class to store the messages sent by the app.
   
   Also, there is a exception handler + logger that follows the project, the exc handler, and the campaign scheduler. 
+## Swagger
+  For ease of use, can go the the swagger-ui using ``../swagger-ui/index.html``
   
 # Run The project
   * JDK 17
