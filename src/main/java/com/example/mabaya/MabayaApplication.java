@@ -7,8 +7,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-// TODO: Add documentation
-
 public class MabayaApplication {
 
     public static void main(String[] args) {

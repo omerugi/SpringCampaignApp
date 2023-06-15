@@ -4,6 +4,7 @@ import com.example.mabaya.dto.CategoryDTO;
 import com.example.mabaya.entities.Category;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -14,4 +15,6 @@ public interface CategoryService {
 
     Optional<Category> getByName(String name);
     void deleteById(Long id);
+
+    List<Category> getAll();
 }

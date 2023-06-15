@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -55,5 +56,10 @@ public class CampaignServiceImpl implements CampaignService {
         Optional<Campaign> opCampaignFromDB = getById(id);
         Campaign campaign = opCampaignFromDB.orElseThrow(() -> new AppValidationException(id+" "+ValidationMsg.NOT_FOUND_ID));
         campaignRepo.delete(campaign);
+    }
+
+    @Override
+    public List<Campaign> getAll() {
+        return campaignRepo.findAll();
     }
 }

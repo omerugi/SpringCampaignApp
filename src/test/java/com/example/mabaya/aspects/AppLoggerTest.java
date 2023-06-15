@@ -37,7 +37,7 @@ class AppLoggerTest {
     }
 
     @Test
-    void TestlogBeforeControllers() throws Throwable {
+    void TestLogBeforeControllers() throws Throwable {
         when(proceedingJoinPoint.proceed()).thenReturn(new Object());
         when(proceedingJoinPoint.getArgs()).thenReturn(null);
 
@@ -48,12 +48,21 @@ class AppLoggerTest {
     }
 
     @Test
-    void TestlogExceptions() {
+    void TestLogExceptions() {
         appLogger.logExceptions(proceedingJoinPoint);
 
         verify(logger).error("An exception was thrown: ", (Object[]) null);
     }
 
-    //TODO: Add scheduler log
+    @Test
+    void TestLogAroundScheduler() throws Throwable {
+        when(proceedingJoinPoint.proceed()).thenReturn(new Object());
+        when(proceedingJoinPoint.getArgs()).thenReturn(null);
+
+        appLogger.logAroundScheduler(proceedingJoinPoint);
+
+        verify(logger).info("Staring Scheduler");
+        verify(logger).info("Ending Scheduler");
+    }
 
 }

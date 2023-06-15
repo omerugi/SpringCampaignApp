@@ -53,4 +53,9 @@ public class CategoryServiceImpl implements CategoryService {
         }
         categoryRepo.deleteById(id);
     }
+
+    @Override
+    public List<Category> getAll() {
+        return categoryRepo.findAll();
+    }
 }

@@ -5,6 +5,7 @@ import com.example.mabaya.dto.projections.TopProductProjection;
 import com.example.mabaya.entities.Product;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,4 +21,6 @@ public interface ProductService {
     void deleteBySerialNumber(String serialNumber);
 
     boolean doesExistBySerialNumber(String serialNumber);
+
+    List<Product> getAll();
 }

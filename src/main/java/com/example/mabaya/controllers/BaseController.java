@@ -1,13 +1,13 @@
 package com.example.mabaya.controllers;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@Controller
 @RequestMapping("/")
 public class BaseController {
-
     @GetMapping
     public String helloWorld(){
-        return "hello world";
+        return "This is the the url for more details - https://github.com/omerugi/SpringCampaignApp";
     }
 }

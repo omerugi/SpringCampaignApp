@@ -65,10 +65,15 @@ public class ProductServiceImpl implements ProductService {
         Product productFromDB = opProductFromDB.orElseThrow(()-> new AppValidationException(ValidationMsg.NOT_FOUND_PSN));
         productRepo.delete(productFromDB);
     }
-    // TODO: test
+
     @Override
     public boolean doesExistBySerialNumber(String serialNumber){
         return productRepo.existsById(serialNumber);
+    }
+
+    @Override
+    public List<Product> getAll() {
+        return productRepo.findAll();
     }
 
     private Product createProductFromDTO(@Valid ProductDTO productDTO){

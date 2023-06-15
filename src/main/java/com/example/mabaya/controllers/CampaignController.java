@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -25,6 +26,11 @@ public class CampaignController {
         return new ResponseEntity<>(campaignFromDB, campaignFromDB.getId().equals(campaignDTO.getId())?
                 HttpStatus.OK:
                 HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Campaign>> getAll(){
+        return new ResponseEntity<>(campaignService.getAll(),HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
