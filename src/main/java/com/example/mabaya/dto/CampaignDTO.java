@@ -30,7 +30,7 @@ public class CampaignDTO {
     private boolean active = true;
 
     @NotEmpty(message = ValidationMsg.EMPTY_PSN)
-    private Set<@Valid @Pattern(regexp="^[a-zA-Z0-9]+$", message = ValidationMsg.INVALID_PSN)String> productSerialNumbers = new HashSet<>();
+    private Set<@Valid @Pattern(regexp="^[a-zA-Z0-9]{1,255}$", message = ValidationMsg.INVALID_PSN)String> productSerialNumbers = new HashSet<>();
 
     public void addProductSerialNumber(String productSerialNumber){
         productSerialNumbers.add(productSerialNumber);
