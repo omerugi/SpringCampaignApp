@@ -13,8 +13,11 @@ Simple demo - [Heroku campaign app](https://campaign-app-omerugi-55b76c613019.he
   
 ### Assumptions
   * Products are inserted with their own serial number that is manually, as there can be many product with different serial number that are not platform related.
+  * When new product is created only need the category name and not the whole object.
+  * When getting product the json will be withput the campaigns related to it.
   * Campaigns that are created/updated with start day that is more than 10 days ago will be saved but inactive.
   * Campaigns names are not unique as there can be many campaigns in the long run that are not usually deleted but the names could be used again.
+  * When a campaign is created only need the product serial number and not the whole object.
   * Category was crated as an entity as it seems more appropriate.
   * Category cannot be deleted if it's attached to a product. (Should migrate the data before deleting).
 
@@ -59,13 +62,15 @@ Simple demo - [Heroku campaign app](https://campaign-app-omerugi-55b76c613019.he
     * **GET** ```.../category/{id}``` - receives an id as a path var and return the category with that id if it was found.
     * **DELET** ```.../category/{id}``` - receives an id as a path var and delete the category **only** if no product is using it.
   * Product:
-    * **POST** ```.../product``` - receives as a payload a valid productDTO to save/update, save without id in the payload update with. Note: need only the category and not the whole object.
+    * **POST** ```.../product``` - receives as a payload a valid productDTO to save/update, save without id in the payload update with.
+      * Note: need only the category and not the whole object.
     * * **GET** ```.../product``` - get all the products.
     * **GET** ```.../product/{serialNumber}``` - receives a serialNumber as a path var and return the product with that serialNumber if it was found.
     * **DELET** ```.../product/{serialNumber}``` - receives an serialNumber as a path var and delete it from the DB without deleting campaigns.
     * **GET** ```.../product/serveAd/{category}``` - receives a category name and return the product with the highest bid from that category, if there is non, will return from another.
   * Campaign:
-    * **POST** ```.../campaign``` - receives as a payload a valid campaignDTO to save/update, save without id in the payload update with. Note: need only the products serial numbers and not the whole object.
+    * **POST** ```.../campaign``` - receives as a payload a valid campaignDTO to save/update, save without id in the payload update with.
+      * Note: need only the products serial numbers and not the whole object.
     * **GET** ```.../campaign``` - get all the campaigns.
     * **GET** ```.../campaign/{id}``` - receives an id as a path var and return the campaign with that id if it was found.
     * **DELET** ```.../campaign/{id}``` - receives an id as a path var and delete it from the DB without deleting products.
