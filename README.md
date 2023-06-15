@@ -14,7 +14,7 @@ Simple demo - [Heroku campaign app](https://campaign-app-omerugi-55b76c613019.he
 ### Assumptions
   * Products are inserted with their own serial number that is manually, as there can be many product with different serial number that are not platform related.
   * When new product is created only need the category name and not the whole object.
-  * When getting product the json will be withput the campaigns related to it.
+  * When getting product the json will be without the campaigns related to it.
   * Campaigns that are created/updated with start day that is more than 10 days ago will be saved but inactive.
   * Campaigns names are not unique as there can be many campaigns in the long run that are not usually deleted but the names could be used again.
   * When a campaign is created only need the product serial number and not the whole object.

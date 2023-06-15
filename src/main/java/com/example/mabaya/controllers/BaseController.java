@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.*;
 public class BaseController {
     @GetMapping
     public String helloWorld(){
-        return "This is the base url for more details - https://github.com/omerugi/SpringCampaignApp";
+        return "<html><head><title>Base URL Info</title><style>body {font-family: Arial, sans-serif;}</style></head><body><p>This is the base url:</p><ul><li><a href='https://github.com/omerugi/SpringCampaignApp'>Github repo</a></li><li><a href='"+System.getenv("swagger_ui_url")+"/swagger-ui/index.html'>Swagger UI</a></li></ul></body></html>";
     }
 }
