@@ -5,7 +5,9 @@ Simple demo - [Heroku campaign app](https://campaign-app-omerugi-55b76c613019.he
 
 <a href="https://www.heroku.com/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/heroku/heroku-icon.svg" alt="heroku" width="40" height="40"/><a href="https://spring.io/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/springio/springio-icon.svg" alt="spring" width="40" height="40"/> <a href="https://www.java.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="java" width="40" height="40"/> </a> <a href="https://www.postgresql.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original-wordmark.svg" alt="postgresql" width="40" height="40"/></a>
 
-  This project is to create a campaign creator, the idea is to let a seller add their product with a category that it's related to and then create campaigns for the products with a bid to push and promote their goods in the platform.
+  This project's idea is to create a campaign creator to demonstrate the implamentation of MVC, RestAPI, DB connection and relationship usgae (many-to-many and one-to-many), logging, exeption handlers, unit tests, integrations tests, all that using Springs powers an capabilities. 
+  
+  The functionality is to let a seller add their product with a category that it's related to and then create campaigns for the products with a bid to push and promote their goods in the platform.
   
   To find the highest bided product under a certain category the system is pulling them based on the highest bid of the campaign the product is related to.
   
@@ -31,7 +33,7 @@ Simple demo - [Heroku campaign app](https://campaign-app-omerugi-55b76c613019.he
 ## Swagger
   For ease of use, can go the the swagger-ui using ``../swagger-ui/index.html``
   
-# Run The project
+# Run The Project
   * JDK 17
   * Postgres
   * application.properties replace the DB credentials.
