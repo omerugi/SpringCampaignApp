@@ -1,12 +1,12 @@
 pipeline {
     agent any
     environment {
-        JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
+        PATH = "$JAVA_HOME/bin:$PATH"
     }
     stages {
         stage('Checkout SCM') {
             steps {
-                sh 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64'
                 sh 'java -version'
                 sh 'echo "Checking out SCM.."'
                 sh 'echo $GRADLE_HOME'
