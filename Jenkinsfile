@@ -1,14 +1,23 @@
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('Clean') {
             steps {
-                sh 'chmod +x gradlew ./gradlew clean build'
+                sh './gradlew clean'
             }
         }
-        stage("Complete"){
-            steps{
-                echo "Job complete!"
+
+        stage('Build') {
+            steps {
+                // Run the Gradle build using the wrapper
+                sh './gradlew build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Run tests (if any)
+                sh './gradlew test'
             }
         }
     }
