@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    tools {
-        jdk 'JAVA_HOME'
-    }
     stages {
         stage('Checkout SCM') {
             steps {
