@@ -1,14 +1,12 @@
 pipeline {
     agent any
     environment {
-        JAVA_HOME = "/path/to/java17"
-        PATH = "/path/to/java17/bin:$PATH"
+        JAVA_HOME="/usr/lib/jvm/openjdk-17"
     }
     stages {
         stage('Checkout SCM') {
             steps {
-                sh 'export JAVA_HOME=/path/to/java17'
-                sh 'export PATH=$JAVA_HOME/bin:$PATH'
+                sh 'export JAVA_HOME=/usr/lib/jvm/openjdk-17'
                 sh 'java -version'
                 sh 'echo "Checking out SCM.."'
                 sh 'echo $GRADLE_HOME'
