@@ -8,6 +8,7 @@ pipeline {
         stage('Checkout SCM') {
             steps {
                 sh 'java -version'
+                sh 'java -version'
                 sh 'echo "Checking out SCM.."'
                 sh 'echo $GRADLE_HOME'
                 sh 'echo $PATH'
