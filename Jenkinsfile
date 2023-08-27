@@ -1,6 +1,18 @@
 pipeline {
     agent any
+    tools {
+        jdk 'jdk17'
+    }
     stages {
+        stage('Checkout SCM') {
+            steps {
+                sh 'java -version'
+                sh 'echo "Checking out SCM.."'
+                sh 'echo $GRADLE_HOME'
+                sh 'echo $PATH'
+                checkout scm
+            }
+        }
         stage('Set Permissions') {
             steps {
                 sh 'chmod +x gradlew'
